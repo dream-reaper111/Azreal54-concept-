@@ -15,31 +15,7 @@
 
 ### THE SIGNAL IS NOISE. THE EVIDENCE IS EVERYTHING.
 
-**A human-commanded, AI-assisted cybersecurity research and adversary-emulation workspace.**  
-**57 specialist role profiles · one local coding SLM · bounded lab tools · evidence-first operations**
-
-<img src="https://img.shields.io/badge/STATUS-EXPERIMENTAL%20%2F%20RECOVERY-bb2537?style=for-the-badge&labelColor=101218" alt="Experimental / recovery">
-<img src="https://img.shields.io/badge/ROLES-57%20REGISTERED-7b61ff?style=for-the-badge&labelColor=101218" alt="57 registered role profiles">
-<img src="https://img.shields.io/badge/INFERENCE-LOCAL%20QWEN-00c6b3?style=for-the-badge&labelColor=101218" alt="Local Qwen inference">
-<img src="https://img.shields.io/badge/RUNTIME-ROOTLESS%20PODMAN-4d91ff?style=for-the-badge&labelColor=101218" alt="Rootless Podman">
-<img src="https://img.shields.io/badge/CONTROL-HUMAN%20APPROVAL-eab85e?style=for-the-badge&labelColor=101218" alt="Human approved operations">
-
-<br>
-<br>
-
-<img src="web/art/board-a-01-tactical-reaper-hero.png" alt="AZRAEL-54 tactical reaper artwork" width="940">
-
-`[ RESEARCH ]` · `[ DEFENSE ]` · `[ ADVERSARY ANALYSIS ]` · `[ FORENSICS ]` · `[ AI ]` · `[ HUMAN OVERSIGHT ]`
-
-**[System overview](#system-overview) · [Architecture](#system-architecture) · [Quick start](#quick-start) · [Mission modules](#mission-modules) · [PoC applications](#proof-of-concept-applications) · [Roadmap](#development-roadmap) · [Security](#rules-of-engagement--security)**
-
-</div>
-
----
-
-> [!IMPORTANT]
-> **AZRAEL-54 is an experimental, locally operated research system, not a production-ready autonomous attack platform.** The 57 roles are *configured specialist identities*, not 57 separately trained LLMs. Existing task-specific checkpoints have limited evaluations, and model output is not verified evidence. Current host operation must be rechecked before calling any service or GPU path healthy. See [BUILD-STATUS.md](BUILD-STATUS.md) and [KNOWN-ISSUES.md](KNOWN-ISSUES.md).
-
+### UMBRA MOVET OMNIA
 ## SYSTEM OVERVIEW
 
 ```text
