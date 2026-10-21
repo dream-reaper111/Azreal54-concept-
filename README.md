@@ -1,5 +1,5 @@
-[README.md](https://github.com/user-attachments/files/33754985/README.md)
-# Azreal54-concept-<!--
+[README(1).md](https://github.com/user-attachments/files/33755075/README.1.md)
+<!--
   AZRAEL-54 // GITHUB PROJECT DOSSIER
   Designed for GitHub's standard Markdown renderer.
   All product statements distinguish source implementation, local tests,
@@ -31,7 +31,7 @@
 
 `[ RESEARCH ]` · `[ DEFENSE ]` · `[ ADVERSARY ANALYSIS ]` · `[ FORENSICS ]` · `[ AI ]` · `[ HUMAN OVERSIGHT ]`
 
-**[System overview](#-system-overview) · [Architecture](#-system-architecture) · [Quick start](#-quick-start) · [Mission modules](#-mission-modules) · [Roadmap](#-development-roadmap) · [Security](#-rules-of-engagement--security)**
+**[System overview](#system-overview) · [Architecture](#system-architecture) · [Quick start](#quick-start) · [Mission modules](#mission-modules) · [Roadmap](#development-roadmap) · [Security](#rules-of-engagement--security)**
 
 </div>
 
@@ -40,7 +40,7 @@
 > [!IMPORTANT]
 > **AZRAEL-54 is an experimental, locally operated research system, not a production-ready autonomous attack platform.** The 57 roles are *configured specialist identities*, not 57 separately trained LLMs. Existing task-specific checkpoints have limited evaluations, and model output is not verified evidence. Current host operation must be rechecked before calling any service or GPU path healthy. See [BUILD-STATUS.md](BUILD-STATUS.md) and [KNOWN-ISSUES.md](KNOWN-ISSUES.md).
 
-## ◈ SYSTEM OVERVIEW
+## SYSTEM OVERVIEW
 
 ```text
 ╔══════════════════════════════════════════════════════════════════════╗
@@ -83,7 +83,7 @@ The project separates *what is registered*, *what exists in source*, *what passe
 
 <sub>Counts are taken from the supplied October 2026 source and recovery documentation; they are not live metrics. Six classifier readiness passes are narrow-task gates, not broad operational qualifications. Artwork publication rights require separate review.</sub>
 
-## ⬡ SYSTEM ARCHITECTURE
+## SYSTEM ARCHITECTURE
 
 ```mermaid
 flowchart TB
@@ -127,7 +127,7 @@ flowchart TB
 
 Container configuration uses rootless-friendly identities, dropped Linux capabilities, read-only filesystems, resource limits, and distinct networks. These controls reduce risk; **they are not proof of complete isolation**.
 
-## ⚡ QUICK START
+## QUICK START
 
 **Target environment:** Linux, especially Pop!_OS, with rootless Podman and its Compose provider. Python tooling and optional NVIDIA CUDA require matching host dependencies. Docker Compose support exists as a secondary path; results may differ by runtime.
 
@@ -167,7 +167,7 @@ The intended local interface is **http://127.0.0.1:8765**. Its sign-in token is 
 **Do not equate a command's presence with a verified working host path.** Run `doctor`, inspect the result, and keep copies of your persistent data before any destructive step.
 
 <details>
-<summary><b>▸ Show the deployment decision tree</b></summary>
+<summary><b>Show the deployment decision tree</b></summary>
 
 ```mermaid
 flowchart TD
@@ -190,7 +190,7 @@ flowchart TD
 
 </details>
 
-## ☠ MISSION MODULES
+## MISSION MODULES
 
 <table>
 <tr><td width="50%">
@@ -236,7 +236,7 @@ Optional NVIDIA CUDA selection and container-device checks. CPU fallback remains
 
 For precise boundaries, see [SLM.md](SLM.md), [ROSTER.md](ROSTER.md), [ARCHITECTURE.md](ARCHITECTURE.md) and the reports in `models-*/`.
 
-## ✦ VISUAL COMMAND CENTER
+## VISUAL COMMAND CENTER
 
 <div align="center">
 <table>
@@ -255,7 +255,7 @@ The supplied dashboard source contains theme selection, role cards, a 3D canvas 
 
 **Image provenance note:** these are repository-relative references to existing AZRAEL artwork. Confirm redistribution rights and attribution before making the repository public. A hash match does not confer a license.
 
-## 🧬 EVIDENCE → INTELLIGENCE → CANDIDATE TRAINING
+## EVIDENCE → INTELLIGENCE → CANDIDATE TRAINING
 
 ```mermaid
 flowchart LR
@@ -283,7 +283,7 @@ The red/blue candidate contract uses six declared configuration features and two
 - **GPU visibility ≠ deployed GPU inference.** The specific service must execute and pass an observed inference test.
 - **Source hash ≠ truth.** Integrity and provenance do not independently verify a technical finding.
 
-## ⚙ NVIDIA / CUDA OPERATIONS
+## NVIDIA / CUDA OPERATIONS
 
 AZRAEL includes a selected-device CUDA path for compatible NVIDIA hardware. The archived environment identifies these cards:
 
@@ -295,7 +295,7 @@ AZRAEL includes a selected-device CUDA path for compatible NVIDIA hardware. The 
 
 Historical test artifacts record CUDA activity, but subsequent host/network/container problems invalidate assumptions of **current** end-to-end availability. A three-GPU probe is not proof of distributed Qwen training or model sharding. See [the GPU evidence ledger](docs/GPU_DEPLOYMENT_STATUS.md).
 
-## 🔐 RULES OF ENGAGEMENT & SECURITY
+## RULES OF ENGAGEMENT & SECURITY
 
 > [!WARNING]
 > **Operate only on assets you own or are expressly authorized to test.** The internal `web-lab` is intentionally vulnerable. Keep it private and never publish it directly onto an untrusted network. Model-generated suggestions have no authority to change this boundary.
@@ -330,7 +330,7 @@ git ls-files | grep -E '(^|/)(\.runtime|\.env|\.slm-model|\.slm-venv|data)/|(^|/
 
 Exclude private credentials, real target details, personal data, unreviewed evidence, licensed datasets, large model weights and unneeded local Python environments. Git history must be examined separately if anything sensitive was previously tracked. For detailed boundaries read [SECURITY.md](SECURITY.md) and [API_KEYS.md](API_KEYS.md).
 
-## 📡 CURRENT VERIFICATION LEDGER
+## CURRENT VERIFICATION LEDGER
 
 **Archive snapshot:** October 21, 2026. These are documentation/source observations, not a live host inspection.
 
@@ -349,7 +349,7 @@ Exclude private credentials, real target details, personal data, unreviewed evid
 > [!NOTE]
 > The archive includes status documents from different stages of the same recovery. An earlier successful verification does not override a later failure. Consult the most recent actual host outputs rather than treating this README as a live health monitor.
 
-## ⟁ DEVELOPMENT ROADMAP
+## DEVELOPMENT ROADMAP
 
 The following is **planned work**, not a promise that the features already run. The highest priority is a verifiable, repeatable recovery before expanding capabilities.
 
@@ -368,7 +368,7 @@ The following is **planned work**, not a promise that the features already run. 
 
 **North star:** *More observable capability, fewer unverifiable claims.*
 
-## 🗂 REPOSITORY MAP
+## REPOSITORY MAP
 
 ```text
 azrael54/
@@ -400,7 +400,7 @@ azrael54/
 ```
 
 <details>
-<summary><b>▸ Open the technical documentation index</b></summary>
+<summary><b>Open the technical documentation index</b></summary>
 
 | Document | Purpose |
 |:--|:--|
@@ -421,7 +421,7 @@ azrael54/
 
 </details>
 
-## 🧪 VALIDATION FOR CONTRIBUTORS
+## VALIDATION FOR CONTRIBUTORS
 
 From an environment where the project's local Python dependencies are installed:
 
@@ -433,7 +433,7 @@ bash -n run.sh install.sh deploy-host.sh
 
 These commands check selected source behavior and syntax. They do not certify OCI images, the host GPU stack, lab containment, the quality of generated security analysis, or a production deployment. In a constrained sandbox, socket-dependent tests may skip.
 
-## 🤝 CONTRIBUTION & DISCLOSURE
+## CONTRIBUTION & DISCLOSURE
 
 AZRAEL-54 is an experimental security research repository. Responsible contributions prioritize reproducible tests, explicit scope, observable evidence, narrow permissions, and a clear distinction between simulation and real effects. **Do not submit live credentials, private target data, exploit runs against third parties or malicious samples into public pull requests.**
 
