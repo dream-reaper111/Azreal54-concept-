@@ -1,4 +1,4 @@
-[README(1).md](https://github.com/user-attachments/files/33755075/README.1.md)
+[README(2).md](https://github.com/user-attachments/files/33755331/README.2.md)
 <!--
   AZRAEL-54 // GITHUB PROJECT DOSSIER
   Designed for GitHub's standard Markdown renderer.
@@ -31,7 +31,7 @@
 
 `[ RESEARCH ]` · `[ DEFENSE ]` · `[ ADVERSARY ANALYSIS ]` · `[ FORENSICS ]` · `[ AI ]` · `[ HUMAN OVERSIGHT ]`
 
-**[System overview](#system-overview) · [Architecture](#system-architecture) · [Quick start](#quick-start) · [Mission modules](#mission-modules) · [Roadmap](#development-roadmap) · [Security](#rules-of-engagement--security)**
+**[System overview](#system-overview) · [Architecture](#system-architecture) · [Quick start](#quick-start) · [Mission modules](#mission-modules) · [PoC applications](#proof-of-concept-applications) · [Roadmap](#development-roadmap) · [Security](#rules-of-engagement--security)**
 
 </div>
 
@@ -235,6 +235,106 @@ Optional NVIDIA CUDA selection and container-device checks. CPU fallback remains
 | **Model promotion** | Isolated candidate output and review interfaces | No automatic weights promotion or recursive self-improvement |
 
 For precise boundaries, see [SLM.md](SLM.md), [ROSTER.md](ROSTER.md), [ARCHITECTURE.md](ARCHITECTURE.md) and the reports in `models-*/`.
+
+## PROOF-OF-CONCEPT APPLICATIONS
+
+AZRAEL-54 is designed as a **repeatable demonstration platform** for security operations, local AI evaluation, digital forensics research and defensive-control validation. Each PoC below has a **defined scope, observable evidence and a success condition** rather than an untestable claim about autonomous capability.
+
+**Readiness legend:** `SOURCE PATH` means an implementation pathway is represented in the current repository but its end-to-end host behavior still needs verification. `COMPOSITE DEMO` means the scenario combines existing pieces and requires integration/acceptance testing. `PROPOSED` means additional implementation is required. **None of these labels means the PoC has passed on the current host.**
+
+### Demonstration portfolio
+
+| ID | Potential PoC | Demonstration objective | Existing foundation / gap | Readiness |
+|:--|:--|:--|:--|:--|
+| **POC-01** | **Authorized Web-Lab Reconnaissance** | Demonstrate a human-approved, bounded security observation against an isolated, owned vulnerable application. | Internal Juice Shop target, fixed `curl` / `Nmap` / `WhatWeb` / `Nikto` recipes and broker approvals exist in source; host workflow needs revalidation. | `SOURCE PATH` |
+| **POC-02** | **Security Baseline / Remediation Comparison** | Capture a pre-change observation, apply an authorized defensive fix, and compare reproducible results. | Lab observations and evidence records provide a foundation; a standardized before/after report and validation harness remain to be built. | `COMPOSITE DEMO` |
+| **POC-03** | **AI-Assisted SOC Alert Triage** | Convert sanitized sample alerts into a ranked investigation brief with citations, uncertainties and escalation decisions. | Role prompts, council review and evidence handling exist; structured alert ingestion and accuracy benchmarking require development. | `PROPOSED` |
+| **POC-04** | **Threat Intelligence Correlation** | Enrich known CVEs / indicators from approved public references, cross-check claims and preserve source provenance. | Curated reference collection and public vulnerability research are represented; analyst-quality correlation requires evaluation. | `COMPOSITE DEMO` |
+| **POC-05** | **Multi-Role Incident Review** | Have planner, critic and chair independently review a supplied hypothetical incident, then obtain operator approval of an evidence-based recommendation. | Council sequence, role contracts and logged proposals exist; output quality and current SLM availability need verification. | `SOURCE PATH` |
+| **POC-06** | **DFIR Evidence Timeline** | Build a chronological case narrative from *supplied, sanitized* logs and artifacts while maintaining hashes, timestamps and attribution. | File import / evidence provenance foundations exist; supported log formats, timeline extraction and chain-of-custody workflow need expansion. | `PROPOSED` |
+| **POC-07** | **Purple-Team Detection Validation** | Evaluate whether a defensive rule detects a documented, safe synthetic lab event and whether a mitigation suppresses it. | Red/blue review structures and isolated lab provide a foundation; detection-event generation, rule execution and measurable outcomes are not established. | `PROPOSED` |
+| **POC-08** | **Attack-Path What-If Modeling** | Display how an incident *might* traverse an operator-supplied topology, then compare containment choices without touching real devices. | Recorded-time 3D topology and spread-versus-containment simulation exist in source; actual enterprise telemetry integration is not claimed. | `SOURCE PATH` |
+| **POC-09** | **Evidence-to-Training Governance** | Prove that unapproved records stay quarantined and that admitted datasets produce versioned, duplicate-safe train/validation/test splits. | Evidence admission, dataset manifests and candidate-training contracts exist; realistic data and held-out qualification are missing. | `SOURCE PATH` |
+| **POC-10** | **Offline AI / GPU Resilience** | Demonstrate the same local-model task on validated CUDA and CPU paths, measuring latency, memory and failure recovery. | Qwen worker, GPU selection and CPU fallback paths exist; present CUDA/container inference must be reproven. | `COMPOSITE DEMO` |
+| **POC-11** | **Authorization & Prompt-Injection Defense** | Submit out-of-scope actions and malicious-looking *inert* reference text; verify that recommendations never become unauthorized tool execution. | Scoped approval gates, tool separation and instruction/data boundaries exist; an automated negative-test corpus can be expanded. | `SOURCE PATH` |
+| **POC-12** | **Disaster Recovery Tabletop** | Rehearse recovery from a simulated service outage, verify persistent evidence and document recovery gaps. | Compose services, recovery documentation and healthcheck tooling exist; an automated, measured restore exercise is future work. | `COMPOSITE DEMO` |
+
+### Reference PoC — controlled web-lab assessment
+
+<details>
+<summary><b>POC-01 // Scope-controlled observation with human authorization</b></summary>
+
+**Scenario:** An operator uses a private OWASP Juice Shop instance to demonstrate the entire **request → review → authorize → observe → preserve** lifecycle. The point of this exercise is to validate security controls and evidence handling, **not to compromise a real organization**.
+
+**Preconditions:** The recovered stack passes authenticated health checks, the `web-lab` is isolated, the broker has no broad host reachability, and the operator can view the approval queue.
+
+1. Define the owned lab target, permitted observation recipe and intended output.
+2. Request a bounded fixed-recipe observation without launching arbitrary generated commands.
+3. Verify that the pending action discloses its exact target, arguments, lifetime and operator identity.
+4. Approve it explicitly and record the broker response, errors, timestamp and source metadata.
+5. Reject or let a second request expire to prove that approvals cannot be silently reused.
+6. Export a redacted evidence bundle and a short limitations statement.
+
+**Acceptance criteria:** The permitted task executes only within scope; a denied or expired task executes nothing; outputs have identifiable origins; and the demonstration can be repeated without exposing the lab publicly.
+
+**Demo artifact:** `POC-01-lab-assessment.md` containing scope, screenshots with tokens redacted, request/approval IDs, tool versions, timestamps and evidence hashes.
+
+</details>
+
+<details>
+<summary><b>POC-05 // Analyst council and accountable decision support</b></summary>
+
+**Scenario:** Provide a fictional intrusion case composed of sanitized alert excerpts and an incident statement. Use the **same shared model** in successive planner, critic and chair contexts to produce a recommendation—not three independent expert models.
+
+1. Submit a case packet and mark each source as supplied, verified or hypothetical.
+2. Ask the planner to identify competing explanations, key facts and missing evidence.
+3. Have the critic challenge unsupported assertions and propose disconfirming checks.
+4. Have the chair summarize the disagreement and produce an operator-reviewable decision memo.
+5. Record operator acceptance or rejection; preserve citations and acknowledge limitations.
+
+**Acceptance criteria:** Every consequential statement is tied to supplied evidence or explicitly labeled inference, disagreement is visible, and no model recommendation triggers an unapproved action.
+
+**Demo artifact:** `POC-05-incident-review.md` with the supplied fictional case, role outputs, reviewer decision and a factual-error scoring rubric.
+
+</details>
+
+<details>
+<summary><b>POC-10 // GPU fallback and repeatable local inference</b></summary>
+
+**Scenario:** Compare an identical bounded prompt using the validated NVIDIA container path and the safe CPU path, entirely on locally controlled inputs. This is a **measurement proposal**, not a claim that all three installed GPUs are currently usable.
+
+1. Capture host driver, CDI, container runtime and model version fingerprints.
+2. Establish one healthy authenticated model inference run on CPU.
+3. Select one GPU and validate actual in-container CUDA allocation and inference.
+4. Record latency, token throughput, peak memory and failure messages for both paths.
+5. Disable the GPU path in a controlled test and verify a documented CPU recovery or explicit safe failure.
+
+**Acceptance criteria:** The same prompt is processed by the intended verified device, device-selection evidence is recorded, and errors are reported without presenting CPU results as GPU success.
+
+**Demo artifact:** `POC-10-local-inference-benchmark.md` with reproducible environment details and *measured* comparisons (no synthetic benchmark values passed off as observed results).
+
+</details>
+
+### PoC execution contract
+
+```mermaid
+flowchart LR
+    A["Define a permitted use case"] --> B["Declare scope and inputs"]
+    B --> C["Establish preflight health"]
+    C --> D["Operator reviews and approves"]
+    D --> E["Run bounded test in controlled environment"]
+    E --> F["Preserve source evidence and measured outputs"]
+    F --> G["Evaluate acceptance criteria"]
+    G --> H["Publish redacted report and limitations"]
+    classDef gated fill:#352332,color:#fff,stroke:#e08fa0
+    class D,E gated
+```
+
+Every published PoC should include **environment and commit SHA; authorizing party and exact scope; input-data classification; method and tool versions; expected versus observed behavior; evidence location / integrity hashes; pass, fail or inconclusive result; reproducibility notes; and known limitations**. A screenshot, generated answer or simulated topology cannot by itself prove that detection, exploitation, prevention or GPU inference actually happened.
+
+**Recommended first public demonstrations:** `POC-01` for bounded operator approval, `POC-05` for accountable role-based reasoning, and `POC-11` for fail-closed security boundaries. These use the most relevant existing source-level foundations, **after** host recovery and verification. `POC-03`, `POC-06` and `POC-07` are compelling next-stage targets but should remain explicitly labeled as concepts until implemented and measured.
+
+**Permitted environments:** personally owned labs, training ranges, synthetic incident datasets and systems with express written authorization. Do not publish credentials or real organizational case data. **No unsanctioned scanning, exploitation, lateral movement or uncontrolled agent execution is part of these demonstrations.**
 
 ## VISUAL COMMAND CENTER
 
