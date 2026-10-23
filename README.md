@@ -1,15 +1,3 @@
-[README(2).md](https://github.com/user-attachments/files/33755331/README.2.md)
-<!--
-  AZRAEL-54 // GITHUB PROJECT DOSSIER
-  Designed for GitHub's standard Markdown renderer.
-  All product statements distinguish source implementation, local tests,
-  historical verification, and unverified host/runtime capability.
-  The included images are relative links to the existing repository artwork.
--->
-
-<div align="center">
-
-<img src="web/art/board-b-02-winged-reaper-sigil.png" alt="AZRAEL-54 winged reaper insignia" width="128">
 
 # A Z R A E L — 5 4
 
