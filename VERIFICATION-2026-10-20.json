@@ -1,0 +1,67 @@
+{
+  "recorded_at": "2026-10-20T14:49:28.308291+00:00",
+  "workspace": "AZRAEL-54 local research dashboard",
+  "previous_test_run": {
+    "result": "79 passed",
+    "elapsed_seconds": 11.479,
+    "command": ".slm-venv/bin/python -m unittest test_role_research test_commands test_http_controls test_installation test_research test_poc_training test_council test_roster test_runtime test_external test_evidence_store test_collection test_hak5_catalog test_source_transport.TransportTests.test_exact_policy_and_shared_broker test_source_transport.TransportTests.test_worker_deadline_and_credential_free_environment test_source_transport.TransportTests.test_output_and_bound_checks test_source_transport.TransportTests.test_actual_worker_rejects_url_before_network test_source_transport.TransportTests.test_redirect_revalidates",
+    "scope": "Recorded before the latest role-context and scene-view edits; these changes have not been re-tested."
+  },
+  "current_static_checks": {
+    "result": "passed",
+    "checks": [
+      "Python AST parse: role_research.py",
+      "Node syntax: web/scene.js, web/app.js, web/poc.js, web/setup.js, web/role-research.js",
+      "HTML: 95 unique IDs; referenced local scripts exist",
+      "Role search profiles: 57 profiles and 171 fixed queries"
+    ],
+    "test_suite_rerun": false,
+    "reason": "No test suite was run after these changes; the 79-test result above predates them."
+  },
+  "current_capabilities": {
+    "registered_roles": 57,
+    "existing_experimental_checkpoints": 16,
+    "checkpoints_passing_readiness_gate": 6,
+    "role_search_profiles": 57,
+    "fixed_role_queries": 171,
+    "role_corpus_documents_assigned": 684,
+    "distinct_source_document_identities": 316,
+    "dork_eligible_roles": 11,
+    "dork_templates": 5,
+    "pinned_research_libraries_available": 11,
+    "real_poc_candidate_training": false
+  },
+  "model_coordinator_smoke": {
+    "shared_slm_generation": {
+      "result": "succeeded",
+      "elapsed_seconds": 100.46,
+      "quality": "not qualified; protocol smoke only"
+    },
+    "three_pass_council": {
+      "result": "completed",
+      "elapsed_seconds": 233.55,
+      "status": "pending_admin_review"
+    },
+    "source_changes_applied": false
+  },
+  "live_retrieval": {
+    "latest_role": "web_red",
+    "requests_succeeded": 0,
+    "requests_failed": 3,
+    "cause": "restricted network in this environment",
+    "training_occurred": false
+  },
+  "unverified_or_blocked": [
+    "Docker image build and service startup",
+    "Chromium dashboard screenshot after latest UI changes",
+    "live Stack Exchange and GitHub search responses",
+    "operational red/blue model training without qualified labeled manifests",
+    "model effectiveness beyond narrow existing benchmark reports"
+  ],
+  "sandbox_limits": [
+    "Local listening sockets are denied.",
+    "The available Chromium process exits before opening a page.",
+    "Outbound requests to live role-search providers fail in the sandbox."
+  ],
+  "historical_record": "VERIFICATION.json retains the earlier 50-role checkpoint and test snapshot; this record describes the expanded 57-role workspace."
+}

@@ -1,0 +1,231 @@
+name: azrael54
+services:
+  dashboard:
+    image: localhost/azrael54-dashboard:latest
+    build:
+      context: .
+      dockerfile: container/Dockerfile.app
+      args:
+        TORCH_INDEX_URL: ${AZRAEL_TORCH_INDEX_URL:-https://download.pytorch.org/whl/cpu}
+    environment:
+      AZRAEL_PORT: ${AZRAEL_PORT:-8765}
+      AZRAEL_HEALTHCHECK_PORT: "8765"
+      AZRAEL_STORAGE_ROOT: /var/lib/azrael54
+      AZRAEL_TMP_DIR: /var/lib/azrael54/tmp
+      AZRAEL_DATASET_DIR: /var/lib/azrael54/datasets
+      AZRAEL_LEGACY_DATASET_DIR: /app/data-legacy
+      AZRAEL_MODEL_DIR: /var/lib/azrael54/models/slm
+      AZRAEL_LEGACY_MODEL_DIR: /app/.slm-model-legacy
+      AZRAEL_EVIDENCE_DIR: /var/lib/azrael54/evidence
+      AZRAEL_ARTIFACTS_DIR: /var/lib/azrael54/artifacts
+      AZRAEL_CHECKPOINT_DIR: /var/lib/azrael54/checkpoints
+      AZRAEL_CACHE_DIR: /var/lib/azrael54/cache
+      AZRAEL_TRAINING_DIR: /var/lib/azrael54/training
+      AZRAEL_EVIDENCE_RETENTION_DAYS: ${AZRAEL_EVIDENCE_RETENTION_DAYS:-30}
+      AZRAEL_EVIDENCE_MAX_RECORDS: ${AZRAEL_EVIDENCE_MAX_RECORDS:-10000}
+      AZRAEL_STORAGE_MIN_FREE_GB: ${AZRAEL_STORAGE_MIN_FREE_GB:-20}
+      AZRAEL_GPU_ENABLED: "false"
+      HF_HOME: /var/lib/azrael54/cache/huggingface
+      HUGGINGFACE_HUB_CACHE: /var/lib/azrael54/cache/huggingface/hub
+      TORCH_HOME: /var/lib/azrael54/cache/torch
+      XDG_CACHE_HOME: /var/lib/azrael54/cache
+      PIP_CACHE_DIR: /var/lib/azrael54/cache/pip
+      TMPDIR: /var/lib/azrael54/tmp
+    user: ${LAB_UID:-1000}:${LAB_GID:-1000}
+    read_only: true
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 14g
+    cpus: 4
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=256m,mode=1777
+    volumes:
+    - ${AZRAEL_STORAGE_ROOT:-/data/work/azrael54}:/var/lib/azrael54:rw
+    - ./data:/app/data-legacy:ro
+    - ./.slm-model:/app/.slm-model-legacy:ro
+    - ./artifacts:/app/artifacts-legacy:ro
+    secrets:
+    - broker_token
+    - admin_token
+    - external_token
+    networks:
+    - lab
+    depends_on:
+    - tools
+    - web-lab
+    - imports
+    - external-tools
+    healthcheck:
+      test: ["CMD", "/app/.slm-venv/bin/python", "/app/healthcheck.py"]
+      interval: 30s
+      timeout: 5s
+      retries: 4
+      start_period: 120s
+    restart: unless-stopped
+  tools:
+    image: localhost/azrael54-tools:latest
+    build:
+      context: .
+      dockerfile: container/Dockerfile.tools
+    user: ${LAB_UID:-1000}:${LAB_GID:-1000}
+    read_only: true
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 1g
+    cpus: 2
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
+    volumes:
+    - ./healthcheck.py:/healthcheck.py:ro
+    secrets:
+    - broker_token
+    networks:
+    - lab
+    healthcheck:
+      test: ["CMD", "/healthcheck.py"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    environment:
+      AZRAEL_HEALTHCHECK_PORT: "8790"
+    restart: unless-stopped
+  imports:
+    image: localhost/azrael54-imports:latest
+    build:
+      context: .
+      dockerfile: container/Dockerfile.imports
+    user: ${LAB_UID:-1000}:${LAB_GID:-1000}
+    read_only: true
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 32
+    mem_limit: 256m
+    cpus: 1
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+    volumes:
+    - ./healthcheck.py:/healthcheck.py:ro
+    secrets:
+    - broker_token
+    networks:
+    - lab
+    - public-imports
+    healthcheck:
+      test: ["CMD", "/healthcheck.py"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    environment:
+      AZRAEL_HEALTHCHECK_PORT: "8791"
+    restart: unless-stopped
+  web-lab:
+    image: ${AZRAEL_WEB_LAB_IMAGE:-docker.io/bkimminich/juice-shop:latest}
+    user: ${LAB_UID:-1000}:${LAB_GID:-1000}
+    read_only: true
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 1g
+    cpus: 2
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=64m,mode=1777
+    networks:
+    - lab
+    volumes:
+    - ./healthcheck.js:/healthcheck.js:ro
+    - ${AZRAEL_WEB_LAB_SHELL:-/usr/bin/busybox}:/bin/sh:ro
+    - ${AZRAEL_JUICE_SHOP_DATA_ROOT:-/data/work/azrael54/juice-shop-data}:/juice-shop/data:rw
+    - ${AZRAEL_JUICE_SHOP_LOG_ROOT:-/data/work/azrael54/juice-shop-logs}:/juice-shop/logs:rw
+    - ${AZRAEL_JUICE_SHOP_FTP_ROOT:-/data/work/azrael54/juice-shop-ftp}:/juice-shop/ftp:rw
+    - ${AZRAEL_JUICE_SHOP_CSAF_ROOT:-/data/work/azrael54/juice-shop-csaf}:/juice-shop/.well-known/csaf:rw
+    - ${AZRAEL_JUICE_SHOP_FRONTEND_ROOT:-/data/work/azrael54/juice-shop-frontend}:/juice-shop/frontend/dist/frontend:rw
+    - ${AZRAEL_JUICE_SHOP_I18N_ROOT:-/data/work/azrael54/juice-shop-i18n}:/juice-shop/i18n:rw
+    healthcheck:
+      test: ["CMD", "/healthcheck.js"]
+      interval: 30s
+      timeout: 5s
+      retries: 4
+      start_period: 60s
+    restart: unless-stopped
+  external-tools:
+    image: localhost/azrael54-external-tools:latest
+    build:
+      context: .
+      dockerfile: container/Dockerfile.external
+    user: ${LAB_UID:-1000}:${LAB_GID:-1000}
+    read_only: true
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 32
+    mem_limit: 256m
+    cpus: 1
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+    volumes:
+    - ./healthcheck.py:/healthcheck.py:ro
+    secrets:
+    - external_token
+    networks:
+    - lab
+    - public-observations
+    healthcheck:
+      test: ["CMD", "/healthcheck.py"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    environment:
+      AZRAEL_HEALTHCHECK_PORT: "8792"
+    restart: unless-stopped
+  frontend:
+    image: localhost/azrael54-frontend:latest
+    build:
+      context: .
+      dockerfile: container/Dockerfile.frontend
+    ports:
+    - 127.0.0.1:${AZRAEL_PORT:-8765}:8080
+    read_only: true
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    pids_limit: 32
+    mem_limit: 256m
+    cpus: 1
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
+    networks:
+    - lab
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck-frontend"]
+      interval: 30s
+      timeout: 5s
+      retries: 4
+      start_period: 10s
+    restart: unless-stopped
+networks:
+  lab:
+    internal: true
+  public-imports: {}
+  public-observations: {}
+secrets:
+  broker_token:
+    file: ./.runtime/broker-token
+  admin_token:
+    file: ./.runtime/admin-token
+  external_token:
+    file: ./.runtime/external-token

@@ -1,0 +1,14 @@
+# Optional Docker Compose GPU pass-through. Use only after `docker run --gpus all` works.
+services:
+  dashboard:
+    build:
+      args:
+        TORCH_INDEX_URL: https://download.pytorch.org/whl/cu128
+    gpus: all
+    environment:
+      AZRAEL_GPU_ENABLED: "true"
+      AZRAEL_GPU_NAME: ${AZRAEL_GPU_NAME:-unknown}
+      AZRAEL_GPU_MEMORY_FRACTION: ${AZRAEL_GPU_MEMORY_FRACTION:-0.85}
+      AZRAEL_GPU_REQUIRED: "false"
+      AZRAEL_GPU_UUID: ${AZRAEL_GPU_UUID:-}
+      CUDA_VISIBLE_DEVICES: ${AZRAEL_GPU_VISIBLE_DEVICES:-0}

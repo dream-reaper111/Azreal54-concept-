@@ -1,0 +1,139 @@
+{
+  "policy_version": "2026-10-20.3",
+  "retrieved": 5,
+  "accepted": 0,
+  "rejected": 0,
+  "quarantined": 5,
+  "duplicates": 5,
+  "items": [
+    {
+      "source_url": "https://archive.ics.uci.edu/api/dataset?id=422",
+      "worker": "research",
+      "task_routes": [
+        "rf_red",
+        "rf_blue"
+      ],
+      "evidence": {
+        "record_id": "3778873f13507e7d80aaac6fddad024fd366cf923e7f04f3f028341a8d919cf7",
+        "version_id": "ff0c3c37bdcb3c057b03543e29a8073292b0e4379fe32ff3258ad63726d312fb",
+        "status": "quarantine",
+        "duplicate_cluster_id": "9a9587f4b07a825d6d430bcaff1696976c536f1a1d9b8857b93cd1da1fd0594c",
+        "is_duplicate": true,
+        "training_occurred": false
+      },
+      "content_sha256": "dc47b2d3b7178e6692ed7537f3e02eda29b384e4960369d118482d60cdd3fa73",
+      "retrieved_at": "2026-10-20T11:00:24.218407+00:00",
+      "publication_at": null,
+      "event_at": null,
+      "license_status": "unknown",
+      "routing": "reference_only"
+    },
+    {
+      "source_url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+      "worker": "official_advisories",
+      "task_routes": [
+        "cve_triage"
+      ],
+      "evidence": {
+        "record_id": "52e2b748c498c2df9dd351bfbd484d40ea29c039b5cd0b252e13dcfa37173f23",
+        "version_id": "a0825133a8922f52e2547f372178b0aae5bd0a79e12858017112c62d4b0200c5",
+        "status": "quarantine",
+        "duplicate_cluster_id": "c42c7caeb9b1e6bc77df1cdbb4299d07b96368abc5f9aec19234ac84f17f5721",
+        "is_duplicate": true,
+        "training_occurred": false
+      },
+      "content_sha256": "b6e27975f6635ecfc546fbd4fd6e444ba63a07ab2abc8876229d77fe083d357d",
+      "retrieved_at": "2026-10-20T11:00:24.527960+00:00",
+      "publication_at": "2026-10-16T17:15:48.8752Z",
+      "event_at": null,
+      "license_status": "unknown",
+      "routing": "reference_only"
+    },
+    {
+      "source_url": "https://archive.ics.uci.edu/api/dataset?id=855",
+      "worker": "research",
+      "task_routes": [
+        "malware_static"
+      ],
+      "evidence": {
+        "record_id": "0ddcbe4c00b98f94926bc6cc7f87f5aeee992df3fcde2ed46a4ed86af6293408",
+        "version_id": "db75904d76427a37a919277129d292f9f6a57e2d0aee2f059d79034e459a3e72",
+        "status": "quarantine",
+        "duplicate_cluster_id": "cdf2ad8e1e615603459a3a05de3e7fd2b287b94bf6ac8d3c67dde416303a5b84",
+        "is_duplicate": true,
+        "training_occurred": false
+      },
+      "content_sha256": "d76e9a99e659870d593690de95b2d3aec6240f2f2ff031e294f7b153b0a77e01",
+      "retrieved_at": "2026-10-20T11:00:24.583256+00:00",
+      "publication_at": null,
+      "event_at": null,
+      "license_status": "unknown",
+      "routing": "reference_only"
+    },
+    {
+      "source_url": "https://api.github.com/repos/openssl/openssl/releases/latest",
+      "worker": "software",
+      "task_routes": [],
+      "evidence": {
+        "record_id": "430dfbc798e5753d41cf52857d94d4e455222e0299c4bd5785460fbbf2890bd2",
+        "version_id": "2e292ef7193b6913629d227e09c0cf9c453d479e2326c215a01508b30349c43f",
+        "status": "quarantine",
+        "duplicate_cluster_id": "20c01ef0af38442c3ea83d3e423602a22e4aace7cfbf0bded8bf623644b21d5e",
+        "is_duplicate": true,
+        "training_occurred": false
+      },
+      "content_sha256": "d22f3aac3ddc166384d5db46f4fb0a32ad3bb3d4a9bd0977575bea8082b12cc4",
+      "retrieved_at": "2026-10-20T11:00:24.918292+00:00",
+      "publication_at": "2026-09-29T13:53:57Z",
+      "event_at": null,
+      "license_status": "unknown",
+      "routing": "reference_only"
+    },
+    {
+      "source_url": "https://api.github.com/repos/curl/curl/releases/latest",
+      "worker": "software",
+      "task_routes": [],
+      "evidence": {
+        "record_id": "c28144812d6929443264913be4c83cd6566ef0dfc45ad8dbd32caf588cf655d5",
+        "version_id": "9ecdb59f0f6dc15cd3196b5a3cf126668a68d96601b15a042712ee297f5341ec",
+        "status": "quarantine",
+        "duplicate_cluster_id": "97e1a8a08e6543f37ef5eb8e3c4677d90d2d313f7896490e6a7589ac521d94aa",
+        "is_duplicate": true,
+        "training_occurred": false
+      },
+      "content_sha256": "43ec96c4d1c666ece35328ef77d9f830786a7eaf34ca1c94429fc42d76fc2884",
+      "retrieved_at": "2026-10-20T11:00:24.974583+00:00",
+      "publication_at": "2026-10-14T06:05:46Z",
+      "event_at": null,
+      "license_status": "unknown",
+      "routing": "reference_only"
+    }
+  ],
+  "training_occurred": false,
+  "authorized_operational": {
+    "status": "awaiting_authorized_input",
+    "host_files_read": false
+  },
+  "limits": {
+    "requests": 5,
+    "workers": 2,
+    "response_bytes_total": 5000000,
+    "duration": "Each outbound child is limited to 25 seconds; five requests in at most three scheduling waves. Database/IPC overhead is additional and elapsed time is reported."
+  },
+  "coverage_gaps": [
+    "No operational evidence supplied.",
+    "Metadata collection does not supply all 54 roles with task-compatible training data.",
+    "No training admission, retraining, promotion, or automatic weight updates."
+  ],
+  "quality": {
+    "unique_metadata_candidates": 0,
+    "accepted_training_examples": 0,
+    "publication_dates_present": 3,
+    "event_dates_present": 0,
+    "verified_licenses": 0,
+    "independent_ground_truth_labels": 0,
+    "synthetic_detection": "Not performed; provenance reviewed by humans before admission.",
+    "independent_corroboration": "Not assessed; repeating one upstream report is not independent confirmation."
+  },
+  "elapsed_seconds": 1.071
+}

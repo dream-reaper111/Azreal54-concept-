@@ -1,0 +1,478 @@
+{
+  "deployment_history": [
+    {
+      "deployment_profile": "cpu",
+      "deployment_run_id": "2026-10-21T06:25:28.016419+00:00",
+      "failure": {
+        "message": "Services did not become healthy within 180s: {\"tools\": \"created|\", \"imports\": \"created|\", \"web-lab\": \"created|\", \"external-tools\": \"created|\"}",
+        "type": "RuntimeError"
+      },
+      "recorded_at": "2026-10-21T06:25:28.016429+00:00",
+      "status": "failed",
+      "steps": [
+        {
+          "name": "host_storage_preflight",
+          "result": {
+            "available_bytes": 3723700486144,
+            "mode": "0o700",
+            "mount": {
+              "filesystem_options": [
+                "rw"
+              ],
+              "options": [
+                "noatime",
+                "rw"
+              ],
+              "read_only": false,
+              "target": "/data/work"
+            },
+            "owner_uid": 1000,
+            "required_directories": [
+              "/data/work/azrael54/datasets",
+              "/data/work/azrael54/models/slm",
+              "/data/work/azrael54/checkpoints",
+              "/data/work/azrael54/evidence",
+              "/data/work/azrael54/artifacts",
+              "/data/work/azrael54/role-research",
+              "/data/work/azrael54/council",
+              "/data/work/azrael54/poc-candidates",
+              "/data/work/azrael54/directives",
+              "/data/work/azrael54/setup",
+              "/data/work/azrael54/training",
+              "/data/work/azrael54/training/models-public",
+              "/data/work/azrael54/training/models-domains",
+              "/data/work/azrael54/training/models-automotive",
+              "/data/work/azrael54/training/models-research",
+              "/data/work/azrael54/training/models-specialists",
+              "/data/work/azrael54/training/models-more",
+              "/data/work/azrael54/juice-shop-data",
+              "/data/work/azrael54/juice-shop-logs",
+              "/data/work/azrael54/juice-shop-ftp",
+              "/data/work/azrael54/juice-shop-csaf",
+              "/data/work/azrael54/juice-shop-frontend",
+              "/data/work/azrael54/juice-shop-i18n",
+              "/data/work/azrael54/cache/huggingface",
+              "/data/work/azrael54/cache/torch",
+              "/data/work/azrael54/cache/pip",
+              "/data/work/azrael54/tmp"
+            ],
+            "root": "/data/work/azrael54",
+            "temporary_probe_removed": true,
+            "write_readback": "passed"
+          },
+          "status": "passed"
+        },
+        {
+          "name": "compose_config_validation",
+          "runtime": "podman",
+          "status": "passed"
+        },
+        {
+          "name": "image_build",
+          "runtime": "podman",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-dashboard:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-frontend:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-tools:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-imports:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-external-tools:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "docker.io/bkimminich/juice-shop:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        }
+      ],
+      "timings": {
+        "build": {
+          "elapsed_seconds": 14.741,
+          "scope": "Compose image build command, including any base-image downloads it performs.",
+          "segments": [
+            {
+              "elapsed_seconds": 14.741,
+              "name": "Compose build",
+              "status": "passed"
+            }
+          ],
+          "status": "passed"
+        },
+        "inference": {
+          "elapsed_seconds": null,
+          "scope": "One actual SLM inference request inside the running dashboard container.",
+          "segments": [],
+          "status": "not_run"
+        },
+        "pull": {
+          "elapsed_seconds": 1.217,
+          "scope": "Explicit Compose pull commands; base-image downloads performed during build are counted under build.",
+          "segments": [
+            {
+              "elapsed_seconds": 1.217,
+              "name": "images: web-lab",
+              "status": "passed"
+            }
+          ],
+          "status": "passed"
+        },
+        "startup": {
+          "elapsed_seconds": 197.489,
+          "scope": "Compose up and health wait for each staged service group.",
+          "segments": [
+            {
+              "elapsed_seconds": 197.489,
+              "error": "Services did not become healthy within 180s: {\"tools\": \"created|\", \"imports\": \"created|\", \"web-lab\": \"created|\", \"external-tools\": \"created|\"}",
+              "error_type": "RuntimeError",
+              "name": "services: tools, imports, web-lab, external-tools",
+              "status": "failed"
+            }
+          ],
+          "status": "failed"
+        }
+      },
+      "verification": {}
+    },
+    {
+      "deployment_profile": "cpu",
+      "deployment_run_id": "2026-10-21T06:34:50.263408+00:00",
+      "failure": {
+        "message": "Services did not become healthy within 180s: {\"tools\": \"created|\", \"imports\": \"created|\", \"web-lab\": \"created|\", \"external-tools\": \"created|\"}",
+        "type": "RuntimeError"
+      },
+      "recorded_at": "2026-10-21T06:34:50.263418+00:00",
+      "status": "failed",
+      "steps": [
+        {
+          "name": "host_storage_preflight",
+          "result": {
+            "available_bytes": 3723700486144,
+            "mode": "0o700",
+            "mount": {
+              "filesystem_options": [
+                "rw"
+              ],
+              "options": [
+                "noatime",
+                "rw"
+              ],
+              "read_only": false,
+              "target": "/data/work"
+            },
+            "owner_uid": 1000,
+            "required_directories": [
+              "/data/work/azrael54/datasets",
+              "/data/work/azrael54/models/slm",
+              "/data/work/azrael54/checkpoints",
+              "/data/work/azrael54/evidence",
+              "/data/work/azrael54/artifacts",
+              "/data/work/azrael54/role-research",
+              "/data/work/azrael54/council",
+              "/data/work/azrael54/poc-candidates",
+              "/data/work/azrael54/directives",
+              "/data/work/azrael54/setup",
+              "/data/work/azrael54/training",
+              "/data/work/azrael54/training/models-public",
+              "/data/work/azrael54/training/models-domains",
+              "/data/work/azrael54/training/models-automotive",
+              "/data/work/azrael54/training/models-research",
+              "/data/work/azrael54/training/models-specialists",
+              "/data/work/azrael54/training/models-more",
+              "/data/work/azrael54/juice-shop-data",
+              "/data/work/azrael54/juice-shop-logs",
+              "/data/work/azrael54/juice-shop-ftp",
+              "/data/work/azrael54/juice-shop-csaf",
+              "/data/work/azrael54/juice-shop-frontend",
+              "/data/work/azrael54/juice-shop-i18n",
+              "/data/work/azrael54/cache/huggingface",
+              "/data/work/azrael54/cache/torch",
+              "/data/work/azrael54/cache/pip",
+              "/data/work/azrael54/tmp"
+            ],
+            "root": "/data/work/azrael54",
+            "temporary_probe_removed": true,
+            "write_readback": "passed"
+          },
+          "status": "passed"
+        },
+        {
+          "name": "compose_config_validation",
+          "runtime": "podman",
+          "status": "passed"
+        },
+        {
+          "name": "image_build",
+          "runtime": "podman",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-dashboard:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-frontend:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-tools:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-imports:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "localhost/azrael54-external-tools:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        },
+        {
+          "image": "docker.io/bkimminich/juice-shop:latest",
+          "name": "local_image_present",
+          "status": "passed"
+        }
+      ],
+      "timings": {
+        "build": {
+          "elapsed_seconds": 4.471,
+          "scope": "Compose image build command, including any base-image downloads it performs.",
+          "segments": [
+            {
+              "elapsed_seconds": 4.471,
+              "name": "Compose build",
+              "status": "passed"
+            }
+          ],
+          "status": "passed"
+        },
+        "inference": {
+          "elapsed_seconds": null,
+          "scope": "One actual SLM inference request inside the running dashboard container.",
+          "segments": [],
+          "status": "not_run"
+        },
+        "pull": {
+          "elapsed_seconds": 1.216,
+          "scope": "Explicit Compose pull commands; base-image downloads performed during build are counted under build.",
+          "segments": [
+            {
+              "elapsed_seconds": 1.216,
+              "name": "images: web-lab",
+              "status": "passed"
+            }
+          ],
+          "status": "passed"
+        },
+        "startup": {
+          "elapsed_seconds": 189.233,
+          "scope": "Compose up and health wait for each staged service group.",
+          "segments": [
+            {
+              "elapsed_seconds": 189.233,
+              "error": "Services did not become healthy within 180s: {\"tools\": \"created|\", \"imports\": \"created|\", \"web-lab\": \"created|\", \"external-tools\": \"created|\"}",
+              "error_type": "RuntimeError",
+              "name": "services: tools, imports, web-lab, external-tools",
+              "status": "failed"
+            }
+          ],
+          "status": "failed"
+        }
+      },
+      "verification": {}
+    }
+  ],
+  "deployment_profile": "cpu",
+  "deployment_run_id": "2026-10-21T06:34:50.263408+00:00",
+  "expected_local_images": {
+    "dashboard": "localhost/azrael54-dashboard:latest",
+    "external-tools": "localhost/azrael54-external-tools:latest",
+    "frontend": "localhost/azrael54-frontend:latest",
+    "imports": "localhost/azrael54-imports:latest",
+    "tools": "localhost/azrael54-tools:latest",
+    "web-lab": "docker.io/bkimminich/juice-shop:latest"
+  },
+  "failure": {
+    "message": "Services did not become healthy within 180s: {\"tools\": \"created|\", \"imports\": \"created|\", \"web-lab\": \"created|\", \"external-tools\": \"created|\"}",
+    "type": "RuntimeError"
+  },
+  "port_binding": "127.0.0.1:8765->frontend:8080",
+  "project": "/home/deadbyte/azrael54",
+  "recorded_at": "2026-10-21T06:34:50.263418+00:00",
+  "rootless_preflight": null,
+  "runtime": "podman",
+  "runtime_probe": {
+    "compose": "podman version 4.9.3\npodman-compose version 1.0.6",
+    "compose_provider": "/usr/bin/podman-compose",
+    "name": "podman",
+    "network_backend": "netavark",
+    "rootless": true,
+    "storage_driver": "overlay",
+    "version": "4.9.3"
+  },
+  "schema_version": 2,
+  "status": "failed",
+  "steps": [
+    {
+      "name": "host_storage_preflight",
+      "result": {
+        "available_bytes": 3723700486144,
+        "mode": "0o700",
+        "mount": {
+          "filesystem_options": [
+            "rw"
+          ],
+          "options": [
+            "noatime",
+            "rw"
+          ],
+          "read_only": false,
+          "target": "/data/work"
+        },
+        "owner_uid": 1000,
+        "required_directories": [
+          "/data/work/azrael54/datasets",
+          "/data/work/azrael54/models/slm",
+          "/data/work/azrael54/checkpoints",
+          "/data/work/azrael54/evidence",
+          "/data/work/azrael54/artifacts",
+          "/data/work/azrael54/role-research",
+          "/data/work/azrael54/council",
+          "/data/work/azrael54/poc-candidates",
+          "/data/work/azrael54/directives",
+          "/data/work/azrael54/setup",
+          "/data/work/azrael54/training",
+          "/data/work/azrael54/training/models-public",
+          "/data/work/azrael54/training/models-domains",
+          "/data/work/azrael54/training/models-automotive",
+          "/data/work/azrael54/training/models-research",
+          "/data/work/azrael54/training/models-specialists",
+          "/data/work/azrael54/training/models-more",
+          "/data/work/azrael54/juice-shop-data",
+          "/data/work/azrael54/juice-shop-logs",
+          "/data/work/azrael54/juice-shop-ftp",
+          "/data/work/azrael54/juice-shop-csaf",
+          "/data/work/azrael54/juice-shop-frontend",
+          "/data/work/azrael54/juice-shop-i18n",
+          "/data/work/azrael54/cache/huggingface",
+          "/data/work/azrael54/cache/torch",
+          "/data/work/azrael54/cache/pip",
+          "/data/work/azrael54/tmp"
+        ],
+        "root": "/data/work/azrael54",
+        "temporary_probe_removed": true,
+        "write_readback": "passed"
+      },
+      "status": "passed"
+    },
+    {
+      "name": "compose_config_validation",
+      "runtime": "podman",
+      "status": "passed"
+    },
+    {
+      "name": "image_build",
+      "runtime": "podman",
+      "status": "passed"
+    },
+    {
+      "image": "localhost/azrael54-dashboard:latest",
+      "name": "local_image_present",
+      "status": "passed"
+    },
+    {
+      "image": "localhost/azrael54-frontend:latest",
+      "name": "local_image_present",
+      "status": "passed"
+    },
+    {
+      "image": "localhost/azrael54-tools:latest",
+      "name": "local_image_present",
+      "status": "passed"
+    },
+    {
+      "image": "localhost/azrael54-imports:latest",
+      "name": "local_image_present",
+      "status": "passed"
+    },
+    {
+      "image": "localhost/azrael54-external-tools:latest",
+      "name": "local_image_present",
+      "status": "passed"
+    },
+    {
+      "image": "docker.io/bkimminich/juice-shop:latest",
+      "name": "local_image_present",
+      "status": "passed"
+    }
+  ],
+  "timings": {
+    "build": {
+      "elapsed_seconds": 4.471,
+      "scope": "Compose image build command, including any base-image downloads it performs.",
+      "segments": [
+        {
+          "elapsed_seconds": 4.471,
+          "name": "Compose build",
+          "status": "passed"
+        }
+      ],
+      "status": "passed"
+    },
+    "inference": {
+      "elapsed_seconds": null,
+      "scope": "One actual SLM inference request inside the running dashboard container.",
+      "segments": [],
+      "status": "not_run"
+    },
+    "pull": {
+      "elapsed_seconds": 1.216,
+      "scope": "Explicit Compose pull commands; base-image downloads performed during build are counted under build.",
+      "segments": [
+        {
+          "elapsed_seconds": 1.216,
+          "name": "images: web-lab",
+          "status": "passed"
+        }
+      ],
+      "status": "passed"
+    },
+    "startup": {
+      "elapsed_seconds": 189.233,
+      "scope": "Compose up and health wait for each staged service group.",
+      "segments": [
+        {
+          "elapsed_seconds": 189.233,
+          "error": "Services did not become healthy within 180s: {\"tools\": \"created|\", \"imports\": \"created|\", \"web-lab\": \"created|\", \"external-tools\": \"created|\"}",
+          "error_type": "RuntimeError",
+          "name": "services: tools, imports, web-lab, external-tools",
+          "status": "failed"
+        }
+      ],
+      "status": "failed"
+    }
+  },
+  "training_claim": "No training is inferred from service startup or research collection.",
+  "verification": {}
+}

@@ -1,0 +1,15 @@
+# Rootless Podman user namespace mapping keeps bind-mounted project data and
+# per-user runtime secrets writable/readable by the configured container user.
+services:
+  dashboard:
+    userns_mode: keep-id
+  tools:
+    userns_mode: keep-id
+  imports:
+    userns_mode: keep-id
+  web-lab:
+    userns_mode: keep-id
+  external-tools:
+    userns_mode: keep-id
+  frontend:
+    userns_mode: keep-id

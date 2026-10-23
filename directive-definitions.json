@@ -1,0 +1,47 @@
+{
+  "white_hat": {
+    "definition": "Authorized security testing intended to identify weaknesses and improve protection.",
+    "engine_behavior": "Defensive work and explicitly approved assessments.",
+    "sources": [
+      "https://www.kaspersky.com/resource-center/definitions/hacker-hat-types",
+      "https://www.fortinet.com/resources/cyberglossary/whitehat-security"
+    ],
+    "retrieved_at": "2026-10-20T10:49:39+00:00",
+    "publication_at": null,
+    "event_at": null,
+    "collection_method": "Primary vendor pages retrieved with web open; definitions are attributed paraphrases, not quotations.",
+    "license": "Source page reuse license not verified; short attributed reference summary only.",
+    "normalized_definition_sha256": "176af5725741d45acd62d429ace568767d22f5c2dd212d39d19e1f80b2148936",
+    "hash_basis": "Application definition text; not original HTML response bytes."
+  },
+  "grey_hat": {
+    "definition": "Vulnerability research that may occur without permission, generally without the malicious intent associated with black hats.",
+    "engine_behavior": "Research and proposed assessments; this application still requires authorization for active testing.",
+    "sources": [
+      "https://www.kaspersky.com/resource-center/definitions/hacker-hat-types",
+      "https://www.fortinet.com/resources/cyberglossary/whitehat-security"
+    ],
+    "retrieved_at": "2026-10-20T10:49:39+00:00",
+    "publication_at": null,
+    "event_at": null,
+    "collection_method": "Primary vendor pages retrieved with web open; definitions are attributed paraphrases, not quotations.",
+    "license": "Source page reuse license not verified; short attributed reference summary only.",
+    "normalized_definition_sha256": "827d8b3355092f446a8961c20468457b73fb9368c5eb426ba8808002f9cd6e50",
+    "hash_basis": "Application definition text; not original HTML response bytes."
+  },
+  "black_hat": {
+    "definition": "Malicious hacking involving unauthorized access, exploitation, theft, disruption or personal gain.",
+    "engine_behavior": "Adversary-perspective research and reviewable validation plans; the application does not enable malicious or unauthorized actions.",
+    "sources": [
+      "https://www.kaspersky.com/resource-center/definitions/hacker-hat-types",
+      "https://www.fortinet.com/resources/cyberglossary/whitehat-security"
+    ],
+    "retrieved_at": "2026-10-20T10:49:39+00:00",
+    "publication_at": null,
+    "event_at": null,
+    "collection_method": "Primary vendor pages retrieved with web open; definitions are attributed paraphrases, not quotations.",
+    "license": "Source page reuse license not verified; short attributed reference summary only.",
+    "normalized_definition_sha256": "44b7b589f1986880b2d442e8233bab593f31a721b6341e1e1ba3145259c9014a",
+    "hash_basis": "Application definition text; not original HTML response bytes."
+  }
+}

@@ -1,0 +1,301 @@
+{
+  "started_at": "2026-10-20T14:18:02.963045+00:00",
+  "validation_kind": "live public metadata plus local offline SLM generation",
+  "training_occurred": false,
+  "active_target_testing_occurred": false,
+  "independent_models": false,
+  "online_brief": {
+    "id": "2da8f4c2fb337f24",
+    "action": "online_brief",
+    "status": "completed",
+    "started_at": "2026-10-20T14:18:03.045921+00:00",
+    "result": {
+      "collection": {
+        "policy_version": "2026-10-20.4",
+        "retrieved": 0,
+        "accepted": 0,
+        "rejected": 5,
+        "quarantined": 0,
+        "duplicates": 0,
+        "items": [
+          {
+            "source_url": "https://archive.ics.uci.edu/api/dataset?id=422",
+            "worker": "research",
+            "status": "failed",
+            "reason": "CalledProcessError"
+          },
+          {
+            "source_url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+            "worker": "official_advisories",
+            "status": "failed",
+            "reason": "CalledProcessError"
+          },
+          {
+            "source_url": "https://archive.ics.uci.edu/api/dataset?id=855",
+            "worker": "research",
+            "status": "failed",
+            "reason": "CalledProcessError"
+          },
+          {
+            "source_url": "https://api.github.com/repos/curl/curl/releases/latest",
+            "worker": "software",
+            "status": "failed",
+            "reason": "CalledProcessError"
+          },
+          {
+            "source_url": "https://api.github.com/repos/openssl/openssl/releases/latest",
+            "worker": "software",
+            "status": "failed",
+            "reason": "CalledProcessError"
+          }
+        ],
+        "training_occurred": false,
+        "authorized_operational": {
+          "status": "awaiting_authorized_input",
+          "host_files_read": false
+        },
+        "limits": {
+          "requests": 5,
+          "workers": 2,
+          "response_bytes_total": 5000000,
+          "duration": "Each outbound child is limited to 25 seconds; five requests in at most three scheduling waves. Database/IPC overhead is additional and elapsed time is reported."
+        },
+        "coverage_gaps": [
+          "No operational evidence supplied.",
+          "Metadata collection does not supply all 54 roles with task-compatible training data.",
+          "No training admission, retraining, promotion, or automatic weight updates."
+        ],
+        "quality": {
+          "unique_metadata_candidates": 0,
+          "accepted_training_examples": 0,
+          "publication_dates_present": 0,
+          "event_dates_present": 0,
+          "verified_licenses": 0,
+          "independent_ground_truth_labels": 0,
+          "synthetic_detection": "Not performed; provenance reviewed by humans before admission.",
+          "independent_corroboration": "Not assessed; repeating one upstream report is not independent confirmation."
+        },
+        "elapsed_seconds": 0.203
+      },
+      "shared_slm_plan": {
+        "text": "### Evidence Review Steps\n\n#### Step 1: Analyze Known Malware Samples\n**Objective:** To identify known malware samples within the repository.\n\n**Steps:**\n1. **Search for Known Malware Samples:**\n   - Use the `search` function on the `stored_repository_references` list.\n   - Filter the results to include only those that match known malware patterns or signatures.\n\n2. **Verify Sample Integrity:**\n   - Download each sample from its respective URL.\n   - Verify the integrity of the downloaded files using checksums (e.g., SHA-256) against the provided `content_sha256` values.\n\n3. **Analyze Sample Content:**\n   - Examine the content of each sample file to look for recognizable malware indicators such as specific file extensions, suspicious strings, or unusual file structures.\n\n4. **Report Findings:**\n   - Document any identified malware samples along with their source URLs, download links",
+        "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+        "mode": "team_brief",
+        "generated_tokens": 192,
+        "execution": "none",
+        "limitations": "Generated text may be wrong; it is not verification or authority."
+      },
+      "training_occurred": false,
+      "testing_permissions_changed": false,
+      "limitation": "One bounded collection followed by one shared local SLM request. Role messages are not independent model inferences."
+    },
+    "finished_at": "2026-10-20T14:19:14.293500+00:00"
+  },
+  "council": {
+    "id": "473446fc354a423ab6f7c0adf93fa1a3",
+    "objective": "Review the metadata provenance and missing labels for the collected public sources. Propose checks for the human admin; do not claim any action was executed.",
+    "objective_sha256": "811be74635a78c3c9427620ff3675fb509ee403a4c78bdef9b3688d97162ef0f",
+    "status": "pending_admin_review",
+    "completion": "complete",
+    "created_at": "2026-10-20T14:19:14.293779+00:00",
+    "updated_at": "2026-10-20T14:24:16.797187+00:00",
+    "participants": [
+      {
+        "phase": "planner",
+        "role": "analyst"
+      },
+      {
+        "phase": "critic",
+        "role": "defender"
+      },
+      {
+        "phase": "chair",
+        "role": "hephaestus"
+      }
+    ],
+    "passes": [
+      {
+        "phase": "planner",
+        "role": "analyst",
+        "request_id": "b0f4f9cfad79428b9339a02dc1cb330a",
+        "input_sha256": "77a5593403d5be4d25d17737b8caa1dca63e9d2b37011d9d0471a788d6e67c1f",
+        "text": "### Project Proposal Cross-Review\n\n#### Objective\nReview the metadata provenance and missing labels for the collected public sources.\n\n#### Evidence\n- **Reference Metadata**: The provided JSON contains a list of repositories and their associated metadata, including URLs, record IDs, version IDs, content SHA-256 hashes, retrieval times, publication times, admission statuses, license statuses, selected facts, fact strings limited to characters, and use information.\n- **Stored Documentation**: The JSON includes documentation on tools like `subdomainer` and `pathzuzu`, which were collected at specific times and have SHA-256 hashes.\n- **Stored Repository References**: The JSON lists references to openWrt and ToorChat repositories, which were collected at specific times and have SHA-256 hashes.\n\n#### Missing Labels\n- **Repository Labels**: Some repositories may lack explicit labels indicating their purpose or category.\n- **Tool Labels**: Some tools may lack explicit labels",
+        "output_sha256": "f95642e9f126f0cdbc1b557b61ceaa9214cacfc138406577750ce22881a69b5c",
+        "generator": "one shared SLM",
+        "generation_provenance": {
+          "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+        },
+        "completed_at": "2026-10-20T14:20:47.555397+00:00"
+      },
+      {
+        "phase": "critic",
+        "role": "defender",
+        "request_id": "18d80eb0b73d44659058797fb78e919e",
+        "input_sha256": "40cb33a760b3ed735062b4ba73b53000822ab6da6112ebc36ce94765b8b60e1e",
+        "text": "### Project Proposal Cross-Review\n\n#### Objective\nReview the metadata provenance and missing labels for the collected public sources.\n\n#### Evidence\n- **Reference Metadata**: The provided JSON contains a list of repositories and their associated metadata, including URLs, record IDs, version IDs, content SHA-256 hashes, retrieval times, publication times, admission statuses, license statuses, selected facts, fact strings limited to characters, and use information.\n- **Stored Documentation**: The JSON also includes details about stored documentation such as subdomains and pathzuzu tools, which were collected at a specific time.\n\n#### Missing Observations\n- **Repository Labels**: There is no explicit mention of repository labels in the provided JSON. This could be an oversight or a requirement that needs to be addressed during the review process.\n- **Missing Provenance Information**: Some repositories may lack detailed provenance information, such as the date they were first discovered or the organization responsible for maintaining them.",
+        "output_sha256": "a6b518be73c8ff65a86ce661f2a55cf88bab6b12ac856288e80a7ea564fac64c",
+        "generator": "one shared SLM",
+        "generation_provenance": {
+          "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+        },
+        "completed_at": "2026-10-20T14:22:16.842467+00:00"
+      },
+      {
+        "phase": "chair",
+        "role": "hephaestus",
+        "request_id": "d517878f549340e485551f065a50a1f4",
+        "input_sha256": "663103dbb83850a660aaae2566bd7c2a2d07580bbb86092df2fd22c79e3fb821",
+        "text": "### Project Proposal Cross-Review\n\n#### Objective\nReview the metadata provenance and missing labels for the collected public sources.\n\n#### Evidence\n- **Reference Metadata**: The provided JSON contains a list of repositories and their associated metadata, including URLs, record IDs, version IDs, content SHA-256 hashes, retrieval times, publication times, admission statuses, license statuses, selected facts, fact strings limited to characters, and use information.\n- **Stored Documentation**: The JSON also includes a list of stored documentation files, each with a name, URL, excerpt, snapshot time, and SHA-256 hash.\n\n#### Proposed Checks\n1. **Verify the Source URLs**:\n   - Ensure that all repository URLs are valid and accessible.\n   - Check if there are any typos or incorrect URLs in the metadata.\n\n2. **Check the Record IDs**:\n   - Verify that all record IDs are unique and consistent across different repositories.\n   - Confirm that",
+        "output_sha256": "15f67973916a331d5be83c2f2a85658da959fd02adcb1cc42ef7a926f0e7dbb6",
+        "generator": "one shared SLM",
+        "generation_provenance": {
+          "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+        },
+        "completed_at": "2026-10-20T14:24:16.737705+00:00"
+      }
+    ],
+    "audit": [
+      {
+        "event": "review_started",
+        "at": "2026-10-20T14:19:14.293779+00:00"
+      },
+      {
+        "event": "phase_started",
+        "phase": "planner",
+        "role": "analyst",
+        "request_id": "b0f4f9cfad79428b9339a02dc1cb330a",
+        "input_sha256": "77a5593403d5be4d25d17737b8caa1dca63e9d2b37011d9d0471a788d6e67c1f",
+        "objective_excerpt_truncated": false,
+        "at": "2026-10-20T14:19:14.302189+00:00"
+      },
+      {
+        "event": "phase_completed",
+        "phase": "planner",
+        "request_id": "b0f4f9cfad79428b9339a02dc1cb330a",
+        "at": "2026-10-20T14:20:47.555422+00:00"
+      },
+      {
+        "event": "phase_started",
+        "phase": "critic",
+        "role": "defender",
+        "request_id": "18d80eb0b73d44659058797fb78e919e",
+        "input_sha256": "40cb33a760b3ed735062b4ba73b53000822ab6da6112ebc36ce94765b8b60e1e",
+        "objective_excerpt_truncated": false,
+        "at": "2026-10-20T14:20:47.560115+00:00"
+      },
+      {
+        "event": "phase_completed",
+        "phase": "critic",
+        "request_id": "18d80eb0b73d44659058797fb78e919e",
+        "at": "2026-10-20T14:22:16.842476+00:00"
+      },
+      {
+        "event": "phase_started",
+        "phase": "chair",
+        "role": "hephaestus",
+        "request_id": "d517878f549340e485551f065a50a1f4",
+        "input_sha256": "663103dbb83850a660aaae2566bd7c2a2d07580bbb86092df2fd22c79e3fb821",
+        "objective_excerpt_truncated": false,
+        "at": "2026-10-20T14:22:16.846471+00:00"
+      },
+      {
+        "event": "phase_completed",
+        "phase": "chair",
+        "request_id": "d517878f549340e485551f065a50a1f4",
+        "at": "2026-10-20T14:24:16.737711+00:00"
+      }
+    ],
+    "provenance": {
+      "generator": "one shared local SLM in three role contexts",
+      "independent_models": false,
+      "source": "admin objective plus existing SLM evidence context; generated text remains untrusted",
+      "reason": "Generate a plan, cross-review limitations, and package recommendations for admin review"
+    },
+    "limitations": [
+      "Role contexts are not independent trained models.",
+      "Independent specialist checkpoints do not parse natural-language project requests.",
+      "Generated recommendations are not proof, executed actions, verified findings, or permission grants.",
+      "This workflow performs no crawling, file changes, code execution, or training."
+    ],
+    "permissions_granted": false,
+    "changes_applied": false,
+    "training_occurred": false,
+    "reference_snapshot": {
+      "at": "2026-10-20T14:19:14.297925+00:00",
+      "meaning": "Stored reference metadata captured before review; not proof and not an exact transcript of changing SLM context.",
+      "items": [
+        {
+          "record_id": "a5323661547dca05ea95a1a38d44a6cb07cc4a1cf118899cf4e15efd805f555c",
+          "version_id": "d313279f72b7faeb617da5f0b52ca26e3e7b8a382b2d5ea1303f888c7a4dae87",
+          "source_url": "https://github.com/hak5/wifipineapplepager-kernel",
+          "content_sha256": "4cb83ace6fa203b7116366afe2c7b23bc050fcf5703638c1a64812408625f976",
+          "retrieved_at": "2026-10-20T11:05:04.135710+00:00",
+          "status": "quarantine"
+        },
+        {
+          "record_id": "e2b8a65e13b21e6f5e97b5e446159f804ec4a2e761ba84773e9cc0c21309c090",
+          "version_id": "ee5da997e3f145905adf2d2cc7f47b6be24229ed2194e335a8173a6a7ae6261f",
+          "source_url": "https://github.com/hak5/wifipineapplepager-ringtones",
+          "content_sha256": "133521743516ad9bd66fc3b196c5d826a82744e89080653bc7909df0f18f4229",
+          "retrieved_at": "2026-10-20T11:05:04.135710+00:00",
+          "status": "quarantine"
+        },
+        {
+          "record_id": "9a5937492c8695e7226d51d288443c8823521e17b50c271d82d2b6b87cf55c3f",
+          "version_id": "a646a429808fc45e8af54feceeebe4d992a9c21683882e74c60e426a6d8d029c",
+          "source_url": "https://github.com/hak5/wifipineapplepager-themes",
+          "content_sha256": "235372069bba9f59e865a629dc4b34331d6723e2913e7d595dddaa29e0cdc8e8",
+          "retrieved_at": "2026-10-20T11:05:04.135710+00:00",
+          "status": "quarantine"
+        },
+        {
+          "record_id": "58572fd7c0340cdf7837f5716e6c548945bd619f1276b3ab333d07fbb9913bac",
+          "version_id": "9541bfe02290c231b9c02d2d3ef2178787b8391a5a96562ebd68812671754b97",
+          "source_url": "https://github.com/hak5/wifipineapplepager-payloads",
+          "content_sha256": "57ad8c17ad0f48cb1ea9911756dba4f00a3ef6b90fed1c1a3566c096730db948",
+          "retrieved_at": "2026-10-20T11:05:04.135710+00:00",
+          "status": "quarantine"
+        },
+        {
+          "record_id": "844c4c146fd8b559f821aee430442b89e202cbf2c9f5768196dbe1e4ecab49a2",
+          "version_id": "4fbc847bf3c2350a662733b665ba523c7a9154a98d7d695107ef09821259f543",
+          "source_url": "https://github.com/hak5/wifipineapplepager",
+          "content_sha256": "a1e9af8ee4e617026c7b24c76fe1e78aef9ad9a904d7cee793b093dada74ffc1",
+          "retrieved_at": "2026-10-20T11:05:04.135710+00:00",
+          "status": "quarantine"
+        }
+      ]
+    },
+    "review_package": {
+      "pass_request_ids": [
+        "b0f4f9cfad79428b9339a02dc1cb330a",
+        "18d80eb0b73d44659058797fb78e919e",
+        "d517878f549340e485551f065a50a1f4"
+      ],
+      "purpose": "Admin review of generated proposals only; no automatic changes or authority."
+    }
+  },
+  "council_elapsed_seconds": 302.543,
+  "evidence_summary": {
+    "records": 39,
+    "versions_by_status": {
+      "quarantine": 44
+    },
+    "retrievals": 44,
+    "datasets": 0,
+    "invalidated_datasets": 0,
+    "training_occurred": false,
+    "retention_days": 30,
+    "max_records": 10000,
+    "near_duplicate_method": "bounded lexical Jaccard >=0.90 with >=12 tokens; heuristic, incomplete"
+  },
+  "quality_review": {
+    "status": "not_qualified",
+    "limitations": [
+      "All five collection requests failed inside the network sandbox; no fresh evidence was retrieved. The historical completed job status was incorrect and the producer has since been fixed to report partial and skip planning on an empty retrieval.",
+      "The generated online brief did not cite sources, proposed unsupported sample downloads, and was truncated. It did not satisfy the requested evidence-review task.",
+      "Three council passes completed, but they mostly repeated context rather than showing effective independent critique. Every pass reached the output limit; substantive planning quality remains unqualified."
+    ]
+  },
+  "finished_at": "2026-10-20T14:24:16.837202+00:00"
+}

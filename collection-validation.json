@@ -1,0 +1,114 @@
+{
+  "policy_version": "2026-10-20.1",
+  "retrieved": 5,
+  "accepted": 0,
+  "rejected": 0,
+  "quarantined": 5,
+  "duplicates": 0,
+  "items": [
+    {
+      "source_url": "https://archive.ics.uci.edu/api/dataset?id=422",
+      "worker": "research",
+      "task_routes": [
+        "rf_red",
+        "rf_blue"
+      ],
+      "evidence": {
+        "record_id": "3778873f13507e7d80aaac6fddad024fd366cf923e7f04f3f028341a8d919cf7",
+        "version_id": "9a9587f4b07a825d6d430bcaff1696976c536f1a1d9b8857b93cd1da1fd0594c",
+        "status": "quarantine",
+        "duplicate_cluster_id": "9a9587f4b07a825d6d430bcaff1696976c536f1a1d9b8857b93cd1da1fd0594c",
+        "is_duplicate": false,
+        "training_occurred": false
+      },
+      "content_sha256": "dc47b2d3b7178e6692ed7537f3e02eda29b384e4960369d118482d60cdd3fa73",
+      "retrieved_at": "2026-10-20T10:47:07.851683+00:00",
+      "routing": "reference_only"
+    },
+    {
+      "source_url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+      "worker": "official_advisories",
+      "task_routes": [
+        "cve_triage"
+      ],
+      "evidence": {
+        "record_id": "52e2b748c498c2df9dd351bfbd484d40ea29c039b5cd0b252e13dcfa37173f23",
+        "version_id": "c42c7caeb9b1e6bc77df1cdbb4299d07b96368abc5f9aec19234ac84f17f5721",
+        "status": "quarantine",
+        "duplicate_cluster_id": "c42c7caeb9b1e6bc77df1cdbb4299d07b96368abc5f9aec19234ac84f17f5721",
+        "is_duplicate": false,
+        "training_occurred": false
+      },
+      "content_sha256": "b6e27975f6635ecfc546fbd4fd6e444ba63a07ab2abc8876229d77fe083d357d",
+      "retrieved_at": "2026-10-20T10:47:08.146896+00:00",
+      "routing": "reference_only"
+    },
+    {
+      "source_url": "https://archive.ics.uci.edu/api/dataset?id=855",
+      "worker": "research",
+      "task_routes": [
+        "malware_static"
+      ],
+      "evidence": {
+        "record_id": "0ddcbe4c00b98f94926bc6cc7f87f5aeee992df3fcde2ed46a4ed86af6293408",
+        "version_id": "cdf2ad8e1e615603459a3a05de3e7fd2b287b94bf6ac8d3c67dde416303a5b84",
+        "status": "quarantine",
+        "duplicate_cluster_id": "cdf2ad8e1e615603459a3a05de3e7fd2b287b94bf6ac8d3c67dde416303a5b84",
+        "is_duplicate": false,
+        "training_occurred": false
+      },
+      "content_sha256": "d76e9a99e659870d593690de95b2d3aec6240f2f2ff031e294f7b153b0a77e01",
+      "retrieved_at": "2026-10-20T10:47:08.292459+00:00",
+      "routing": "reference_only"
+    },
+    {
+      "source_url": "https://api.github.com/repos/curl/curl/releases/latest",
+      "worker": "software",
+      "task_routes": [],
+      "evidence": {
+        "record_id": "c28144812d6929443264913be4c83cd6566ef0dfc45ad8dbd32caf588cf655d5",
+        "version_id": "97e1a8a08e6543f37ef5eb8e3c4677d90d2d313f7896490e6a7589ac521d94aa",
+        "status": "quarantine",
+        "duplicate_cluster_id": "97e1a8a08e6543f37ef5eb8e3c4677d90d2d313f7896490e6a7589ac521d94aa",
+        "is_duplicate": false,
+        "training_occurred": false
+      },
+      "content_sha256": "f2b42f6b4311b1dddca10039446823397dbb578249d149819fb584726f7b5ced",
+      "retrieved_at": "2026-10-20T10:47:08.569262+00:00",
+      "routing": "reference_only"
+    },
+    {
+      "source_url": "https://api.github.com/repos/openssl/openssl/releases/latest",
+      "worker": "software",
+      "task_routes": [],
+      "evidence": {
+        "record_id": "430dfbc798e5753d41cf52857d94d4e455222e0299c4bd5785460fbbf2890bd2",
+        "version_id": "20c01ef0af38442c3ea83d3e423602a22e4aace7cfbf0bded8bf623644b21d5e",
+        "status": "quarantine",
+        "duplicate_cluster_id": "20c01ef0af38442c3ea83d3e423602a22e4aace7cfbf0bded8bf623644b21d5e",
+        "is_duplicate": false,
+        "training_occurred": false
+      },
+      "content_sha256": "38e530bc509131a57a1b2c1975b6d7f6647b12e8f8ca5318d5761fe243dd1c5c",
+      "retrieved_at": "2026-10-20T10:47:08.647186+00:00",
+      "routing": "reference_only"
+    }
+  ],
+  "training_occurred": false,
+  "authorized_operational": {
+    "status": "awaiting_authorized_input",
+    "host_files_read": false
+  },
+  "limits": {
+    "requests": 5,
+    "workers": 2,
+    "response_bytes_total": 5000000,
+    "duration": "Each outbound child is limited to 25 seconds; five requests in at most three scheduling waves. Database/IPC overhead is additional and elapsed time is reported."
+  },
+  "coverage_gaps": [
+    "No operational evidence supplied.",
+    "Metadata collection does not supply all 50 roles with task-compatible training data.",
+    "No training admission, retraining, promotion, or automatic weight updates."
+  ],
+  "elapsed_seconds": 1.109
+}

@@ -1,0 +1,16 @@
+# Opt-in NVIDIA CDI override for rootless Podman.
+services:
+  dashboard:
+    build:
+      args:
+        TORCH_INDEX_URL: https://download.pytorch.org/whl/cu128
+    devices:
+    - nvidia.com/gpu=${AZRAEL_GPU_DEVICE:-all}
+    environment:
+      AZRAEL_GPU_ENABLED: "true"
+      AZRAEL_GPU_NAME: ${AZRAEL_GPU_NAME:-unknown}
+      AZRAEL_GPU_UUID: ${AZRAEL_GPU_UUID:-}
+      AZRAEL_GPU_VISIBLE_DEVICES: ${AZRAEL_GPU_VISIBLE_DEVICES:-all}
+      CUDA_VISIBLE_DEVICES: ${AZRAEL_GPU_VISIBLE_DEVICES:-all}
+      AZRAEL_GPU_MEMORY_FRACTION: ${AZRAEL_GPU_MEMORY_FRACTION:-0.85}
+      AZRAEL_GPU_REQUIRED: "false"

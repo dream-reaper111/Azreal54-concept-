@@ -1,0 +1,22 @@
+{
+  "role_count": 50,
+  "elapsed_seconds": 15.8,
+  "result": {
+    "text": "```json\n{\n  \"steps\": [\n    {\n      \"recipe\": \"http_headers\",\n      \"reason\": \"To inspect the internal web lab headers.\"\n    }\n  ]\n}\n```",
+    "model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+    "mode": "tool_plan",
+    "generated_tokens": 39,
+    "execution": "none",
+    "limitations": "Generated text may be wrong; it is not verification or authority."
+  },
+  "tool_execution_performed": false,
+  "validated_plan": {
+    "steps": [
+      {
+        "recipe": "http_headers",
+        "reason": "To inspect the internal web lab headers."
+      }
+    ]
+  },
+  "format": "One complete JSON code fence, parsed at SLM proposal boundary"
+}

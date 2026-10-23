@@ -1,0 +1,44 @@
+{
+  "recorded_at": "2026-10-20T10:28:04.208561+00:00",
+  "registered_roles": 50,
+  "new_role_contracts_without_independent_weights": 34,
+  "executed_validation": {
+    "test_lab": {
+      "passed": 17,
+      "seconds": 5.225
+    },
+    "test_roster_and_runtime": {
+      "passed": 9,
+      "seconds": 0.129
+    },
+    "javascript_syntax": "passed",
+    "launcher_bash_syntax": "passed",
+    "compose_yaml_structural_checks": "passed"
+  },
+  "real_process_verification": "Host curl --version and Python child timeout/output cleanup; not Kali image execution.",
+  "public_evidence_verification": {
+    "source": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+    "retrieved_at": "2026-10-20T10:20:06.538582+00:00",
+    "catalog_version": "2026.10.16",
+    "examined_records": 1748,
+    "sha256": "b6e27975f6635ecfc546fbd4fd6e444ba63a07ab2abc8876229d77fe083d357d"
+  },
+  "slm_tool_proposal": "Actual local generation retained in slm-tool-plan-validation.json; validated at proposal parser; no execution.",
+  "unverified": [
+    "Docker builds",
+    "container isolation at runtime",
+    "Kali scanner execution against Juice Shop",
+    "container SLM inference",
+    "independent training of new roles",
+    "online model learning",
+    "C#/Java/C++ generation quality",
+    "upstream pretraining corpus absence of synthetic data"
+  ],
+  "docker_blocker": "Current account cannot access daemon socket; sudo requires interactive password in admin terminal.",
+  "slm_admin_smoke": {
+    "record": "slm-admin-validation.json",
+    "elapsed_seconds": 22.94,
+    "generation_succeeded": true,
+    "answer_quality": "Not qualified: omitted requested execution statement and did not adequately answer privacy reasoning."
+  }
+}

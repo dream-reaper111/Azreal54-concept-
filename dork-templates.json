@@ -1,0 +1,40 @@
+{
+  "origin": "Project-authored scoped templates using documented operators; not a verbatim third-party dork dump.",
+  "default_access": "disabled",
+  "source_references": [
+    "https://support.google.com/websearch/answer/2466433?hl=en",
+    "https://docs.github.com/en/search-github/github-code-search/understanding-github-code-search-syntax"
+  ],
+  "templates": [
+    {
+      "id": "security_policy",
+      "scope_type": "domain",
+      "query": "site:{scope} \"security policy\"",
+      "purpose": "security policy"
+    },
+    {
+      "id": "api_documentation",
+      "scope_type": "domain",
+      "query": "site:{scope} \"API documentation\"",
+      "purpose": "api documentation"
+    },
+    {
+      "id": "architecture_documents",
+      "scope_type": "domain",
+      "query": "site:{scope} filetype:pdf \"architecture\"",
+      "purpose": "architecture documents"
+    },
+    {
+      "id": "repository_policy",
+      "scope_type": "repository",
+      "query": "repo:{scope} path:SECURITY.md",
+      "purpose": "repository policy"
+    },
+    {
+      "id": "security_tests",
+      "scope_type": "repository",
+      "query": "repo:{scope} path:tests \"security\"",
+      "purpose": "security tests"
+    }
+  ]
+}
