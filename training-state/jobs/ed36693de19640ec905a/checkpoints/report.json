@@ -1,0 +1,89 @@
+{
+  "provenance": {
+    "synthetic_secret_seed": 42,
+    "synthetic_pairs": 0,
+    "custom": [
+      {
+        "path": "/home/deadbyte/azrael54/training-state/jobs/ed36693de19640ec905a/classifier.jsonl",
+        "sha256": "9f8eb61f8c1e8fca0b22f518207c7d1fec99b928ddc8b3c6c621ed770ae48ddb"
+      }
+    ]
+  },
+  "evaluation": "Operator-frozen disjoint splits; test never selects epochs; source, review and synthetic status recorded in managed_dataset; not a cross-project benchmark",
+  "configuration": {
+    "epochs": 1,
+    "patience": 3,
+    "per_class": 0,
+    "seed": 42
+  },
+  "tasks": {
+    "secret": {
+      "train_rows": 26,
+      "validation_rows": 6,
+      "test_rows": 8,
+      "train_class_counts": {
+        "benign": 13,
+        "potential_secret": 13
+      },
+      "excluded_conflicting_texts": 0,
+      "test_split_sha256": "eb2f6f2da047c1fc9ef71b923182968ac2fc659f22b414d3651d561146f5ccf2",
+      "validation_split_sha256": "4eaf49cf0249be8f80d7e5fc48291f16d2249a39638ac759a89037edcf20475c",
+      "best_epoch": 1,
+      "history": [
+        {
+          "epoch": 1,
+          "training_loss": 0.6777348518371582,
+          "validation_macro_f1": 1.0,
+          "validation_loss": 0.6224906841913859
+        }
+      ],
+      "metrics": {
+        "benign": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 4.0
+        },
+        "potential_secret": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 4.0
+        },
+        "accuracy": 1.0,
+        "macro avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 8.0
+        },
+        "weighted avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 8.0
+        },
+        "loss": 0.6229841113090515
+      },
+      "elapsed_seconds": 0.9369941539989668
+    }
+  },
+  "managed_dataset": {
+    "id": "2b08ded67d5200c192a6f556",
+    "source": "authorized-local-synthetic-smoke",
+    "license": "CC0-1.0",
+    "synthetic": "yes",
+    "approved": true,
+    "reviewer": "authorized-fixture-operator",
+    "records_sha256": "61f3ced0c65aa00f3cb026cb5e62c37b00b1b0631a19980e441b1cb323b04cf4",
+    "split": {
+      "seed": 42,
+      "sha256": "abb4e7e1661817cffe029c3ac40a5a64d48059c10eafe30905f234c14dd79721",
+      "counts": {
+        "train": 26,
+        "validation": 6,
+        "test": 8
+      }
+    }
+  }
+}

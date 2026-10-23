@@ -1,0 +1,62 @@
+{
+  "dataset_split": "test",
+  "examples": 8,
+  "accuracy": 1.0,
+  "classification_report": {
+    "benign": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 4.0
+    },
+    "potential_secret": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 4.0
+    },
+    "accuracy": 1.0,
+    "macro avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 8.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 8.0
+    }
+  },
+  "labels": [
+    "benign",
+    "potential_secret"
+  ],
+  "confusion_matrix": [
+    [
+      4,
+      0
+    ],
+    [
+      0,
+      4
+    ]
+  ],
+  "rates": {
+    "benign": {
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    },
+    "potential_secret": {
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.0
+    }
+  },
+  "synthetic_status": "yes",
+  "at": "2026-10-21T12:52:36.569958+00:00",
+  "job": "ed36693de19640ec905a",
+  "dataset_hash": "61f3ced0c65aa00f3cb026cb5e62c37b00b1b0631a19980e441b1cb323b04cf4",
+  "checkpoint": "/home/deadbyte/azrael54/training-state/jobs/ed36693de19640ec905a/checkpoints/secret.pt",
+  "approval_status": "candidate evaluation only; human selection still required"
+}

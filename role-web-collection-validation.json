@@ -1,0 +1,25 @@
+{
+  "role": "web_red",
+  "retrieved_at": "2026-10-20T14:37:26.271348+00:00",
+  "requests": [
+    {
+      "provider": "stackoverflow",
+      "status": "failed",
+      "error_type": "CalledProcessError"
+    },
+    {
+      "provider": "security_forum",
+      "status": "failed",
+      "error_type": "CalledProcessError"
+    },
+    {
+      "provider": "github",
+      "status": "failed",
+      "error_type": "CalledProcessError"
+    }
+  ],
+  "items": [],
+  "training_occurred": false,
+  "admission": "quarantine",
+  "validation_elapsed_seconds": 0.23
+}

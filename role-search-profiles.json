@@ -1,0 +1,1473 @@
+{
+  "created_at": "2026-10-20T14:33:25.393851+00:00",
+  "purpose": "Project-authored role-specific research queries; not training examples or labels.",
+  "profiles": {
+    "analyst": {
+      "name": "Analyst",
+      "lane": "blue",
+      "topic": "software security evidence",
+      "objective": "Original secret and exploit classifiers; evidence baseline",
+      "local_query": "software security evidence",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python software security evidence",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+software+security+evidence&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "software security evidence detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=software+security+evidence+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "software security evidence security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=software+security+evidence+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "defender": {
+      "name": "Defender",
+      "lane": "blue",
+      "topic": "credential detection",
+      "objective": "Detection, independent critique and synthetic adversarial checks",
+      "local_query": "credential detection",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python credential detection",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+credential+detection&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "credential detection detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=credential+detection+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "credential detection security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=credential+detection+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "offense_test": {
+      "name": "Adversarial tests",
+      "lane": "red",
+      "topic": "security regression testing",
+      "objective": "Neural selection of synthetic test representations",
+      "local_query": "security regression testing",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python security regression testing",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+security+regression+testing&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "security regression testing authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=security+regression+testing+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "security regression testing security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=security+regression+testing+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "offense_tools": {
+      "name": "Tool research",
+      "lane": "red",
+      "topic": "security tooling",
+      "objective": "Neural category prediction; Kali, Parrot and BlackArch reference search",
+      "local_query": "security tooling",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python security tooling",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+security+tooling&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "security tooling authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=security+tooling+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "security tooling security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=security+tooling+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "malware_static": {
+      "name": "Malware \u00b7 static",
+      "lane": "blue",
+      "topic": "binary malware analysis",
+      "objective": "Android permission/API features \u2192 public dataset malware label",
+      "local_query": "binary malware analysis",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python binary malware analysis",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+binary+malware+analysis&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "binary malware analysis detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=binary+malware+analysis+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "binary malware analysis security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=binary+malware+analysis+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "malware_behavior": {
+      "name": "Malware \u00b7 behavior",
+      "lane": "blue",
+      "topic": "malware behavior analysis",
+      "objective": "Technique descriptions \u2192 public ATT&CK tactic",
+      "local_query": "malware behavior analysis",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python malware behavior analysis",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+malware+behavior+analysis&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "malware behavior analysis detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=malware+behavior+analysis+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "malware behavior analysis security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=malware+behavior+analysis+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "bounty_review": {
+      "name": "Bounty review",
+      "lane": "blue",
+      "topic": "source code vulnerability review",
+      "objective": "CWE code examples \u2192 documented flawed/good label",
+      "local_query": "source code vulnerability review",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python source code vulnerability review",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+source+code+vulnerability+review&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "source code vulnerability review detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=source+code+vulnerability+review+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "source code vulnerability review security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=source+code+vulnerability+review+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "cve_triage": {
+      "name": "Crash / CVE triage",
+      "lane": "blue",
+      "topic": "vulnerability severity triage",
+      "objective": "Known vulnerability text \u2192 published CVSS severity",
+      "local_query": "vulnerability severity triage",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python vulnerability severity triage",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+vulnerability+severity+triage&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "vulnerability severity triage detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=vulnerability+severity+triage+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "vulnerability severity triage security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=vulnerability+severity+triage+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "web_red": {
+      "name": "Web Red",
+      "lane": "red",
+      "topic": "web application security testing",
+      "objective": "Web red \u00b7 documented flawed-code candidates",
+      "local_query": "web application security testing",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python web application security testing",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+web+application+security+testing&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "web application security testing authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=web+application+security+testing+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "web application security testing security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=web+application+security+testing+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "web_blue": {
+      "name": "Web Blue",
+      "lane": "blue",
+      "topic": "web application hardening",
+      "objective": "Web blue \u00b7 independent good/flawed-code review",
+      "local_query": "web application hardening",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python web application hardening",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+web+application+hardening&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "web application hardening detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=web+application+hardening+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "web application hardening security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=web+application+hardening+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "network_red": {
+      "name": "Network Red",
+      "lane": "red",
+      "topic": "network protocol security testing",
+      "objective": "Network red \u00b7 historical labeled attack-category triage",
+      "local_query": "network protocol security testing",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python network protocol security testing",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+network+protocol+security+testing&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "network protocol security testing authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=network+protocol+security+testing+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "network protocol security testing security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=network+protocol+security+testing+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "network_blue": {
+      "name": "Network Blue",
+      "lane": "blue",
+      "topic": "network intrusion detection",
+      "objective": "Network blue \u00b7 historical intrusion/normal classification",
+      "local_query": "network intrusion detection",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python network intrusion detection",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+network+intrusion+detection&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "network intrusion detection detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=network+intrusion+detection+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "network intrusion detection security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=network+intrusion+detection+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "rf_red": {
+      "name": "Rf Red",
+      "lane": "red",
+      "topic": "wireless protocol testing",
+      "objective": "RF red \u00b7 infer source-dataset room from seven RSSI values",
+      "local_query": "wireless protocol testing",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python wireless protocol testing",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+wireless+protocol+testing&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "wireless protocol testing authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=wireless+protocol+testing+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "wireless protocol testing security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=wireless+protocol+testing+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "rf_blue": {
+      "name": "Rf Blue",
+      "lane": "blue",
+      "topic": "wireless anomaly detection",
+      "objective": "RF blue \u00b7 independent room estimate and optional claim consistency",
+      "local_query": "wireless anomaly detection",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python wireless anomaly detection",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+wireless+anomaly+detection&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "wireless anomaly detection detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=wireless+anomaly+detection+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "wireless anomaly detection security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=wireless+anomaly+detection+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "automotive_red": {
+      "name": "Automotive Red",
+      "lane": "red",
+      "topic": "CAN bus security testing",
+      "objective": "Automotive red \u00b7 locate anomalous synthetic traffic windows",
+      "local_query": "CAN bus security testing",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python CAN bus security testing",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+CAN+bus+security+testing&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "CAN bus security testing authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=CAN+bus+security+testing+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "CAN bus security testing security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=CAN+bus+security+testing+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "automotive_blue": {
+      "name": "Automotive Blue",
+      "lane": "blue",
+      "topic": "CAN bus anomaly detection",
+      "objective": "Automotive blue \u00b7 independent synthetic CAN-window intrusion review",
+      "local_query": "CAN bus anomaly detection",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python CAN bus anomaly detection",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+CAN+bus+anomaly+detection&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "CAN bus anomaly detection detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=CAN+bus+anomaly+detection+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "CAN bus anomaly detection security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=CAN+bus+anomaly+detection+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "hydra": {
+      "name": "Hydra",
+      "lane": "red",
+      "topic": "attack-chain analysis",
+      "objective": "Chains documented weaknesses into attack scenarios.",
+      "local_query": "attack-chain analysis",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python attack-chain analysis",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+attack-chain+analysis&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "attack-chain analysis authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=attack-chain+analysis+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "attack-chain analysis security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=attack-chain+analysis+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "aegis": {
+      "name": "Aegis",
+      "lane": "blue",
+      "topic": "attack-chain analysis",
+      "objective": "Identifies critical control points that break attack chains.",
+      "local_query": "attack-chain analysis",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python attack-chain analysis",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+attack-chain+analysis&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "attack-chain analysis detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=attack-chain+analysis+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "attack-chain analysis security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=attack-chain+analysis+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "crownfall": {
+      "name": "Crownfall",
+      "lane": "red",
+      "topic": "identity and permissions",
+      "objective": "Reviews privilege escalation paths in authorized inputs.",
+      "local_query": "identity and permissions",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python identity and permissions",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+identity+and+permissions&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "identity and permissions authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=identity+and+permissions+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "identity and permissions security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=identity+and+permissions+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "citadel": {
+      "name": "Citadel",
+      "lane": "blue",
+      "topic": "identity and permissions",
+      "objective": "Finds dangerous permission relationships and recommends corrections.",
+      "local_query": "identity and permissions",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python identity and permissions",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+identity+and+permissions&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "identity and permissions detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=identity+and+permissions+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "identity and permissions security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=identity+and+permissions+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "cloudbreaker": {
+      "name": "Cloudbreaker",
+      "lane": "red",
+      "topic": "cloud trust",
+      "objective": "Reviews cloud trust boundaries in authorized configurations.",
+      "local_query": "cloud trust",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python cloud trust",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+cloud+trust&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "cloud trust authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=cloud+trust+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "cloud trust security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=cloud+trust+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "skyshield": {
+      "name": "Skyshield",
+      "lane": "blue",
+      "topic": "cloud trust",
+      "objective": "Reviews evidence of cloud abuse and recommends containment.",
+      "local_query": "cloud trust",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python cloud trust",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+cloud+trust&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "cloud trust detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=cloud+trust+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "cloud trust security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=cloud+trust+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "phantom_forge": {
+      "name": "Phantom Forge",
+      "lane": "red",
+      "topic": "software supply chain",
+      "objective": "Analyzes compromised-dependency scenarios from supplied evidence.",
+      "local_query": "software supply chain",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python software supply chain",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+software+supply+chain&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "software supply chain authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=software+supply+chain+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "software supply chain security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=software+supply+chain+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "provenance": {
+      "name": "Provenance",
+      "lane": "blue",
+      "topic": "software supply chain",
+      "objective": "Checks build-integrity evidence and traces suspicious components.",
+      "local_query": "software supply chain",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python software supply chain",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+software+supply+chain&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "software supply chain detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=software+supply+chain+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "software supply chain security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=software+supply+chain+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "blackout": {
+      "name": "Blackout",
+      "lane": "red",
+      "topic": "availability and continuity",
+      "objective": "Plans bounded availability assessments for owned lab services.",
+      "local_query": "availability and continuity",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python availability and continuity",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+availability+and+continuity&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "availability and continuity authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=availability+and+continuity+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "availability and continuity security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=availability+and+continuity+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "lifeline": {
+      "name": "Lifeline",
+      "lane": "blue",
+      "topic": "availability and continuity",
+      "objective": "Assesses failover, service continuity and recovery evidence.",
+      "local_query": "availability and continuity",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python availability and continuity",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+availability+and+continuity&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "availability and continuity detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=availability+and+continuity+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "availability and continuity security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=availability+and+continuity+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "chimera": {
+      "name": "Chimera",
+      "lane": "red",
+      "topic": "cross-domain correlation",
+      "objective": "Connects documented weaknesses across web, identity and networks.",
+      "local_query": "cross-domain correlation",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python cross-domain correlation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+cross-domain+correlation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "cross-domain correlation authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=cross-domain+correlation+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "cross-domain correlation security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=cross-domain+correlation+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "nexus": {
+      "name": "Nexus",
+      "lane": "blue",
+      "topic": "cross-domain correlation",
+      "objective": "Connects supplied alerts into an evidence-backed incident narrative.",
+      "local_query": "cross-domain correlation",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python cross-domain correlation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+cross-domain+correlation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "cross-domain correlation detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=cross-domain+correlation+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "cross-domain correlation security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=cross-domain+correlation+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "ghost_protocol": {
+      "name": "Ghost Protocol",
+      "lane": "red",
+      "topic": "behavioral analysis",
+      "objective": "Reviews intrusion-emulation plans for designated lab targets.",
+      "local_query": "behavioral analysis",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python behavioral analysis",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+behavioral+analysis&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "behavioral analysis authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=behavioral+analysis+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "behavioral analysis security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=behavioral+analysis+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "watchtower": {
+      "name": "Watchtower",
+      "lane": "blue",
+      "topic": "behavioral analysis",
+      "objective": "Reviews supplied telemetry for behavioral anomalies.",
+      "local_query": "behavioral analysis",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python behavioral analysis",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+behavioral+analysis&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "behavioral analysis detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=behavioral+analysis+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "behavioral analysis security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=behavioral+analysis+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "zero_day_forge": {
+      "name": "Zero-Day Forge",
+      "lane": "red",
+      "topic": "software flaw review",
+      "objective": "Reviews designated test software for candidate flaws.",
+      "local_query": "software flaw review",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python software flaw review",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+software+flaw+review&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "software flaw review authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=software+flaw+review+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "software flaw review security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=software+flaw+review+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "bastion": {
+      "name": "Bastion",
+      "lane": "blue",
+      "topic": "software flaw review",
+      "objective": "Assesses findings, proposes fixes and plans patch verification.",
+      "local_query": "software flaw review",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python software flaw review",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+software+flaw+review&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "software flaw review detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=software+flaw+review+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "software flaw review security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=software+flaw+review+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "doomsday": {
+      "name": "Doomsday",
+      "lane": "red",
+      "topic": "recovery and integrity",
+      "objective": "Plans worst-case assessments for an owned isolated digital twin.",
+      "local_query": "recovery and integrity",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python recovery and integrity",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+recovery+and+integrity&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "recovery and integrity authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=recovery+and+integrity+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "recovery and integrity security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=recovery+and+integrity+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "phoenix": {
+      "name": "Phoenix",
+      "lane": "blue",
+      "topic": "recovery and integrity",
+      "objective": "Reviews restoration evidence and verifies integrity checks.",
+      "local_query": "recovery and integrity",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python recovery and integrity",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+recovery+and+integrity&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "recovery and integrity detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=recovery+and+integrity+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "recovery and integrity security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=recovery+and+integrity+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "nomad": {
+      "name": "Nomad",
+      "lane": "red",
+      "topic": "portable servers",
+      "objective": "Reviews authorized server security evidence across network and connectivity changes.",
+      "local_query": "portable servers",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python portable servers",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+portable+servers&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "portable servers authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=portable+servers+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "portable servers security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=portable+servers+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "anchor": {
+      "name": "Anchor",
+      "lane": "blue",
+      "topic": "portable servers",
+      "objective": "Checks encryption, device identity and secure reconnection evidence.",
+      "local_query": "portable servers",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python portable servers",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+portable+servers&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "portable servers detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=portable+servers+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "portable servers security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=portable+servers+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "worldline": {
+      "name": "Worldline",
+      "lane": "red",
+      "topic": "application migration",
+      "objective": "Reviews session and permission consistency during authorized host migration.",
+      "local_query": "application migration",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python application migration",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+application+migration&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "application migration authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=application+migration+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "application migration security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=application+migration+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "continuum": {
+      "name": "Continuum",
+      "lane": "blue",
+      "topic": "application migration",
+      "objective": "Verifies policy continuity across migration and failover evidence.",
+      "local_query": "application migration",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python application migration",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+application+migration&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "application migration detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=application+migration+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "application migration security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=application+migration+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "threshold": {
+      "name": "Threshold",
+      "lane": "red",
+      "topic": "physical access",
+      "objective": "Reviews approved unattended-equipment and exposed-port assessment plans.",
+      "local_query": "physical access",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python physical access",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+physical+access&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "physical access authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=physical+access+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "physical access security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=physical+access+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "gatekeeper": {
+      "name": "Gatekeeper",
+      "lane": "blue",
+      "topic": "physical access",
+      "objective": "Correlates supplied physical-access records, device events and tamper alerts.",
+      "local_query": "physical access",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python physical access",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+physical+access&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "physical access detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=physical+access+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "physical access security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=physical+access+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "iron_ghost": {
+      "name": "Iron Ghost",
+      "lane": "red",
+      "topic": "hardware interfaces",
+      "objective": "Reviews designated lab-device evidence for debug-interface and boot weaknesses.",
+      "local_query": "hardware interfaces",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python hardware interfaces",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+hardware+interfaces&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "hardware interfaces authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=hardware+interfaces+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "hardware interfaces security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=hardware+interfaces+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "root_of_trust": {
+      "name": "Root of Trust",
+      "lane": "blue",
+      "topic": "hardware interfaces",
+      "objective": "Checks supplied firmware integrity, boot verification and hardware configuration evidence.",
+      "local_query": "hardware interfaces",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python hardware interfaces",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+hardware+interfaces&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "hardware interfaces detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=hardware+interfaces+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "hardware interfaces security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=hardware+interfaces+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "trojan_dock": {
+      "name": "Trojan Dock",
+      "lane": "red",
+      "topic": "peripheral devices",
+      "objective": "Plans authorized peripheral assessments using harmless designated test devices.",
+      "local_query": "peripheral devices",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python peripheral devices",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+peripheral+devices&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "peripheral devices authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=peripheral+devices+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "peripheral devices security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=peripheral+devices+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "portwarden": {
+      "name": "Portwarden",
+      "lane": "blue",
+      "topic": "peripheral devices",
+      "objective": "Reviews peripheral restrictions and unexpected-device detection evidence.",
+      "local_query": "peripheral devices",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python peripheral devices",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+peripheral+devices&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "peripheral devices detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=peripheral+devices+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "peripheral devices security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=peripheral+devices+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "drift": {
+      "name": "Drift",
+      "lane": "red",
+      "topic": "wireless mobility",
+      "objective": "Reviews connection behavior during authorized wireless roaming assessments.",
+      "local_query": "wireless mobility",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python wireless mobility",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+wireless+mobility&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "wireless mobility authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=wireless+mobility+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "wireless mobility security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=wireless+mobility+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "spectrum": {
+      "name": "Spectrum",
+      "lane": "blue",
+      "topic": "wireless mobility",
+      "objective": "Reviews supplied telemetry for suspicious wireless changes and policy violations.",
+      "local_query": "wireless mobility",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python wireless mobility",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+wireless+mobility&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "wireless mobility detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=wireless+mobility+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "wireless mobility security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=wireless+mobility+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "cold_orbit": {
+      "name": "Cold Orbit",
+      "lane": "red",
+      "topic": "lost or stolen equipment",
+      "objective": "Reviews dummy-data accessibility on designated recovered lab devices.",
+      "local_query": "lost or stolen equipment",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python lost or stolen equipment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+lost+or+stolen+equipment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "lost or stolen equipment authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=lost+or+stolen+equipment+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "lost or stolen equipment security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=lost+or+stolen+equipment+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "vault": {
+      "name": "Vault",
+      "lane": "blue",
+      "topic": "lost or stolen equipment",
+      "objective": "Reviews disk protection, credential revocation and recovery evidence.",
+      "local_query": "lost or stolen equipment",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python lost or stolen equipment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+lost+or+stolen+equipment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "lost or stolen equipment detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=lost+or+stolen+equipment+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "lost or stolen equipment security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=lost+or+stolen+equipment+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "hephaestus": {
+      "name": "HEPHAESTUS",
+      "lane": "red",
+      "topic": "authorized adversary research",
+      "objective": "Reviews designated lab reproductions and fuzzing evidence; pairs findings with detection and remediation.",
+      "local_query": "authorized adversary research",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python authorized adversary research",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+authorized+adversary+research&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "authorized adversary research authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=authorized+adversary+research+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "authorized adversary research security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=authorized+adversary+research+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "obsidian": {
+      "name": "OBSIDIAN",
+      "lane": "blue",
+      "topic": "privacy and exposure assessment",
+      "objective": "Minimizes unnecessary exposure and measures what remains; reviews privacy evidence and preserves accountable audit records.",
+      "local_query": "privacy and exposure assessment",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python privacy and exposure assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+privacy+and+exposure+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "privacy and exposure assessment detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=privacy+and+exposure+assessment+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "privacy and exposure assessment security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=privacy+and+exposure+assessment+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "scada_red": {
+      "name": "SCADA \u00b7 Red",
+      "lane": "red",
+      "topic": "industrial configuration and protocol review",
+      "objective": "Reviews supplied industrial configurations and documented weaknesses for authorized assessment planning.",
+      "local_query": "industrial configuration and protocol review",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python industrial configuration and protocol review",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+industrial+configuration+and+protocol+review&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "industrial configuration and protocol review authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=industrial+configuration+and+protocol+review+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "industrial configuration and protocol review security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=industrial+configuration+and+protocol+review+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "scada_blue": {
+      "name": "SCADA \u00b7 Blue",
+      "lane": "blue",
+      "topic": "industrial defensive evidence review",
+      "objective": "Reviews supplied asset, segmentation, alarm and control-integrity evidence.",
+      "local_query": "industrial defensive evidence review",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python industrial defensive evidence review",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+industrial+defensive+evidence+review&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "industrial defensive evidence review detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=industrial+defensive+evidence+review+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "industrial defensive evidence review security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=industrial+defensive+evidence+review+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "satellite_red": {
+      "name": "Satellite \u00b7 Red",
+      "lane": "red",
+      "topic": "space-system software and configuration review",
+      "objective": "Reviews supplied satellite software, protocol and ground-segment configurations.",
+      "local_query": "space-system software and configuration review",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python space-system software and configuration review",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+space-system+software+and+configuration+review&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "space-system software and configuration review authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=space-system+software+and+configuration+review+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "space-system software and configuration review security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=space-system+software+and+configuration+review+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "satellite_blue": {
+      "name": "Satellite \u00b7 Blue",
+      "lane": "blue",
+      "topic": "space-system defensive evidence review",
+      "objective": "Reviews supplied telemetry integrity, ground-segment hardening and communications-policy evidence.",
+      "local_query": "space-system defensive evidence review",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python space-system defensive evidence review",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+space-system+defensive+evidence+review&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "space-system defensive evidence review detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=space-system+defensive+evidence+review+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "space-system defensive evidence review security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=space-system+defensive+evidence+review+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "poc_red": {
+      "name": "PoC \u00b7 Red",
+      "lane": "red",
+      "topic": "authorized reproducibility review",
+      "objective": "Reviews designated-software reproducer proposals and supplied failure evidence.",
+      "local_query": "authorized reproducibility review",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python authorized reproducibility review",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+authorized+reproducibility+review&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "authorized reproducibility review authorized lab assessment",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=authorized+reproducibility+review+authorized+lab+assessment&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "authorized reproducibility review security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=authorized+reproducibility+review+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "poc_blue": {
+      "name": "PoC \u00b7 Blue",
+      "lane": "blue",
+      "topic": "remediation and regression review",
+      "objective": "Reviews proposed reproducers, detection, patches and regression evidence.",
+      "local_query": "remediation and regression review",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python remediation and regression review",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+remediation+and+regression+review&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "remediation and regression review detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=remediation+and+regression+review+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "remediation and regression review security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=remediation+and+regression+review+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "osint_junior": {
+      "name": "Geo Sentinel \u00b7 Junior",
+      "lane": "blue",
+      "topic": "public reference and authorized asset research",
+      "objective": "Collects public reference metadata and reviews authorized asset information under analyst supervision.",
+      "local_query": "public reference and authorized asset research",
+      "providers": [
+        {
+          "provider": "stackoverflow",
+          "query": "python public reference and authorized asset research",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=stackoverflow&q=python+public+reference+and+authorized+asset+research&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "security_forum",
+          "query": "public reference and authorized asset research detection mitigation validation",
+          "url": "https://api.stackexchange.com/2.3/search/advanced?site=security&q=public+reference+and+authorized+asset+research+detection+mitigation+validation&sort=relevance&order=desc&pagesize=5&page=1&filter=withbody"
+        },
+        {
+          "provider": "github",
+          "query": "public reference and authorized asset research security language:Python archived:false fork:false",
+          "url": "https://api.github.com/search/repositories?q=public+reference+and+authorized+asset+research+security+language%3APython+archived%3Afalse+fork%3Afalse&sort=updated&order=desc&per_page=5&page=1"
+        }
+      ]
+    },
+    "crucible": {
+      "name": "CRUCIBLE",
+      "lane": "blue",
+      "topic": "independent scope and evidence audit",
+      "objective": "Independently audits lab scope, evidence provenance and privacy claims; reports gaps for administrator review without executing tests.",
+      "local_query": "independent scope and evidence audit",
+      "providers": [],
+      "collection_enabled": false,
+      "limitations": "Stored and supplied references only; no additional outbound sources were enabled by role registration."
+    },
+    "dark_signal": {
+      "name": "Dark Signal \u00b7 Threat Research",
+      "lane": "blue",
+      "topic": "public threat reporting and source provenance",
+      "objective": "Reviews lawfully obtained, redacted public threat reports and darknet-related references; no illicit-service access, purchases, credential handling or account access.",
+      "local_query": "public threat reporting and source provenance",
+      "providers": [],
+      "collection_enabled": false,
+      "limitations": "Stored and supplied references only; no additional outbound sources were enabled by role registration."
+    },
+    "nightwatch": {
+      "name": "Nightwatch \u00b7 Exposure Defense",
+      "lane": "blue",
+      "topic": "threat indicator review and exposure defense",
+      "objective": "Triages public threat indicators, checks source provenance and recommends defensive exposure reduction from supplied evidence.",
+      "local_query": "threat indicator review and exposure defense",
+      "providers": [],
+      "collection_enabled": false,
+      "limitations": "Stored and supplied references only; no additional outbound sources were enabled by role registration."
+    },
+    "fission": {
+      "name": "Fission \u00b7 Critical-System Scenarios",
+      "lane": "red",
+      "topic": "synthetic critical-infrastructure resilience scenarios",
+      "objective": "Reviews synthetic, offline failure scenarios against nonoperational critical-infrastructure diagrams; no live control-system interaction or operational instructions.",
+      "local_query": "synthetic critical-infrastructure resilience scenarios",
+      "providers": [],
+      "collection_enabled": false,
+      "limitations": "Stored and supplied references only; no additional outbound sources were enabled by role registration."
+    },
+    "containment": {
+      "name": "Containment \u00b7 Critical-System Resilience",
+      "lane": "blue",
+      "topic": "critical-infrastructure detection and recovery evidence",
+      "objective": "Reviews supplied defensive configurations and synthetic recovery scenarios for critical infrastructure; no connection to live control systems.",
+      "local_query": "critical-infrastructure detection and recovery evidence",
+      "providers": [],
+      "collection_enabled": false,
+      "limitations": "Stored and supplied references only; no additional outbound sources were enabled by role registration."
+    },
+    "event_horizon": {
+      "name": "Event Horizon \u00b7 Graph Simulation",
+      "lane": "red",
+      "topic": "synthetic graph-risk simulation",
+      "objective": "Examines bounded propagation hypotheses on synthetic graphs only; it does not discover hosts, execute payloads or control endpoints.",
+      "local_query": "synthetic graph-risk simulation",
+      "providers": [],
+      "collection_enabled": false,
+      "limitations": "Stored and supplied references only; no additional outbound sources were enabled by role registration."
+    },
+    "sinkhole": {
+      "name": "Sinkhole \u00b7 Threat Containment",
+      "lane": "blue",
+      "topic": "offline containment design and telemetry review",
+      "objective": "Reviews offline sinkhole and segmentation designs and supplied telemetry; it does not alter live routes or intercept unrelated traffic.",
+      "local_query": "offline containment design and telemetry review",
+      "providers": [],
+      "collection_enabled": false,
+      "limitations": "Stored and supplied references only; no additional outbound sources were enabled by role registration."
+    },
+    "malware_lab_red": {
+      "name": "Malware Lab \u00b7 Red",
+      "lane": "red",
+      "topic": "offline review and harmless defensive-control test planning",
+      "objective": "Reviews supplied malware-behavior reports and proposes harmless, non-propagating defensive-control tests; no malware creation, kernel modification, persistence, evasion or sample execution.",
+      "local_query": "rootkit malware defensive detection evidence review",
+      "providers": [],
+      "collection_enabled": false,
+      "operator_reference": "https://github.com/skyw4tch3r/RootKits-List-Download",
+      "reference_status": "untrusted link catalog; not a validated dataset or sample source",
+      "limitations": "Reference metadata only. No linked content is fetched, cloned, built, imported, executed or admitted for training."
+    },
+    "malware_lab_blue": {
+      "name": "Malware Lab \u00b7 Blue",
+      "lane": "blue",
+      "topic": "malware triage, detection and recovery review",
+      "objective": "Reviews supplied process, memory, file-integrity and network evidence for possible rootkit, virus or worm activity; recommends detection, containment and recovery without changing live hosts.",
+      "local_query": "rootkit malware defensive detection evidence review",
+      "providers": [],
+      "collection_enabled": false,
+      "operator_reference": "https://github.com/skyw4tch3r/RootKits-List-Download",
+      "reference_status": "untrusted link catalog; not a validated dataset or sample source",
+      "limitations": "Reference metadata only. No linked content is fetched, cloned, built, imported, executed or admitted for training."
+    }
+  },
+  "sources": [
+    "https://api.stackexchange.com/docs/advanced-search",
+    "https://api.stackexchange.com/docs/throttle",
+    "https://docs.github.com/en/rest/search/search"
+  ]
+}

@@ -1,0 +1,669 @@
+{
+  "sources": {
+    "cwe": {
+      "path": "cwe.xml.zip",
+      "url": "https://cwe.mitre.org/data/xml/cwec_latest.xml.zip",
+      "reference": "https://cwe.mitre.org/data/downloads.html",
+      "sha256": "3976f599e5e5200219a3108bb896d06e2a88fbb293369e1883cb423a5e9d7d50"
+    },
+    "attack": {
+      "path": "attack-20.0.json",
+      "url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/enterprise-attack/enterprise-attack-20.0.json",
+      "reference": "https://github.com/mitre-attack/attack-stix-data",
+      "sha256": "81113ba98afa2928f3dcff62022539f7ce30c315c32e14422f11ff95ce534352"
+    },
+    "nvd": {
+      "path": "nvd-2024-page0.json",
+      "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate=2024-01-01T00%3A00%3A00.000&pubEndDate=2024-03-01T00%3A00%3A00.000&resultsPerPage=2000",
+      "reference": "https://nvd.nist.gov/developers/vulnerabilities",
+      "sha256": "6c50ffef82fd62154fd9ddbfde901d15194f76d65f5d18245545fe2261b26640"
+    },
+    "uci": {
+      "path": "tuandromd.zip",
+      "url": "https://archive.ics.uci.edu/static/public/855/tuandromd%2B%28tezpur%2Buniversity%2Bandroid%2Bmalware%2Bdataset%29.zip",
+      "reference": "https://doi.org/10.24432/C5560H",
+      "attribution": "Borah, P. & Bhattacharyya, D. (2020), TUANDROMD, UCI, CC BY 4.0",
+      "sha256": "441d2005b97f3816e8b64e692c5e5a0b629685091638aad9e67fd81f40a5cf5f"
+    }
+  },
+  "models": {
+    "malware_static": {
+      "metrics": {
+        "goodware": {
+          "precision": 0.963963963963964,
+          "recall": 0.963963963963964,
+          "f1-score": 0.963963963963964,
+          "support": 111.0
+        },
+        "malware": {
+          "precision": 0.8095238095238095,
+          "recall": 0.8095238095238095,
+          "f1-score": 0.8095238095238095,
+          "support": 21.0
+        },
+        "accuracy": 0.9393939393939394,
+        "macro avg": {
+          "precision": 0.8867438867438868,
+          "recall": 0.8867438867438868,
+          "f1-score": 0.8867438867438868,
+          "support": 132.0
+        },
+        "weighted avg": {
+          "precision": 0.9393939393939394,
+          "recall": 0.9393939393939394,
+          "f1-score": 0.9393939393939394,
+          "support": 132.0
+        }
+      },
+      "train_rows": 420,
+      "validation_rows": 106,
+      "test_rows": 132,
+      "excluded_conflicting_vectors": 2,
+      "excluded_invalid_rows": 1,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.4421052631578947
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.4421052631578947
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.5616211745244003
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.6205012247974373
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.6505494505494506
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.7992424242424242
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.8767441860465117
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.8767441860465117
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.8767441860465117
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.9075581395348837
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.9075581395348837
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.8900251963835779
+        },
+        {
+          "epoch": 13,
+          "validation_macro_f1": 0.8900251963835779
+        },
+        {
+          "epoch": 14,
+          "validation_macro_f1": 0.8900251963835779
+        },
+        {
+          "epoch": 15,
+          "validation_macro_f1": 0.9244045072029667
+        },
+        {
+          "epoch": 16,
+          "validation_macro_f1": 0.9244045072029667
+        },
+        {
+          "epoch": 17,
+          "validation_macro_f1": 0.9244045072029667
+        },
+        {
+          "epoch": 18,
+          "validation_macro_f1": 0.9244045072029667
+        },
+        {
+          "epoch": 19,
+          "validation_macro_f1": 0.9244045072029667
+        },
+        {
+          "epoch": 20,
+          "validation_macro_f1": 0.9244045072029667
+        },
+        {
+          "epoch": 21,
+          "validation_macro_f1": 0.9244045072029667
+        }
+      ],
+      "task": "241 Android permission/API features -> malware/goodware source label; does not analyze arbitrary binary bytes",
+      "scope": "Unique feature-vector random holdout. No family/time split or real-provider/APK extraction verification."
+    },
+    "bounty_review": {
+      "metrics": {
+        "documented_flawed_example": {
+          "precision": 0.7579617834394905,
+          "recall": 0.9296875,
+          "f1-score": 0.8350877192982457,
+          "support": 128.0
+        },
+        "documented_good_example": {
+          "precision": 0.35714285714285715,
+          "recall": 0.11627906976744186,
+          "f1-score": 0.17543859649122806,
+          "support": 43.0
+        },
+        "accuracy": 0.7251461988304093,
+        "macro avg": {
+          "precision": 0.5575523202911739,
+          "recall": 0.5229832848837209,
+          "f1-score": 0.5052631578947369,
+          "support": 171.0
+        },
+        "weighted avg": {
+          "precision": 0.6571710592830272,
+          "recall": 0.7251461988304093,
+          "f1-score": 0.6692110392941418,
+          "support": 171.0
+        }
+      },
+      "train_rows": 564,
+      "validation_rows": 163,
+      "test_rows": 171,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.426056338028169
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.426056338028169
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.426056338028169
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.5113908872901679
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.6172425360617242
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.6119047619047618
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.639044289044289
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.6360070010260124
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.6163317037841752
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.6306059160305344
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.6015182707153885
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.6415158179665031
+        },
+        {
+          "epoch": 13,
+          "validation_macro_f1": 0.6500477099236641
+        },
+        {
+          "epoch": 14,
+          "validation_macro_f1": 0.6445033893309755
+        },
+        {
+          "epoch": 15,
+          "validation_macro_f1": 0.639044289044289
+        },
+        {
+          "epoch": 16,
+          "validation_macro_f1": 0.6527568922305764
+        },
+        {
+          "epoch": 17,
+          "validation_macro_f1": 0.6500477099236641
+        },
+        {
+          "epoch": 18,
+          "validation_macro_f1": 0.6470770182493041
+        },
+        {
+          "epoch": 19,
+          "validation_macro_f1": 0.6414956011730205
+        },
+        {
+          "epoch": 20,
+          "validation_macro_f1": 0.6556822982678496
+        },
+        {
+          "epoch": 21,
+          "validation_macro_f1": 0.6694895038167938
+        },
+        {
+          "epoch": 22,
+          "validation_macro_f1": 0.6556822982678496
+        },
+        {
+          "epoch": 23,
+          "validation_macro_f1": 0.6580419580419581
+        },
+        {
+          "epoch": 24,
+          "validation_macro_f1": 0.6712384025816862
+        },
+        {
+          "epoch": 25,
+          "validation_macro_f1": 0.6527568922305764
+        }
+      ],
+      "source": "cwe",
+      "task": "Code example -> documented flawed/good label; no whole-repository data-flow proof",
+      "excluded_conflicting_texts": 0,
+      "split_group_sha256": {
+        "train": "c161e3bb682da7509433f2b187ee2618067c9edebff8a8139cbbea1fb6e90efd",
+        "validation": "52e15adb2e33eff523974dd4659798a13ee93bfbeda9dabc06bc7a24941f7162",
+        "test": "c10c0f24d1cfc67503f2b637e0d0ea79cd53ea619c7564bb5c3457a05b866e07"
+      }
+    },
+    "malware_behavior": {
+      "metrics": {
+        "collection": {
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "f1-score": 0.4,
+          "support": 3.0
+        },
+        "command-and-control": {
+          "precision": 0.8666666666666667,
+          "recall": 0.8666666666666667,
+          "f1-score": 0.8666666666666667,
+          "support": 15.0
+        },
+        "credential-access": {
+          "precision": 0.5454545454545454,
+          "recall": 0.8571428571428571,
+          "f1-score": 0.6666666666666666,
+          "support": 7.0
+        },
+        "defense-impairment": {
+          "precision": 0.35294117647058826,
+          "recall": 0.6666666666666666,
+          "f1-score": 0.46153846153846156,
+          "support": 9.0
+        },
+        "discovery": {
+          "precision": 0.7142857142857143,
+          "recall": 0.7142857142857143,
+          "f1-score": 0.7142857142857143,
+          "support": 7.0
+        },
+        "execution": {
+          "precision": 0.5,
+          "recall": 0.3333333333333333,
+          "f1-score": 0.4,
+          "support": 3.0
+        },
+        "exfiltration": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1-score": 0.6666666666666666,
+          "support": 4.0
+        },
+        "impact": {
+          "precision": 1.0,
+          "recall": 0.5384615384615384,
+          "f1-score": 0.7,
+          "support": 13.0
+        },
+        "initial-access": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 6.0
+        },
+        "lateral-movement": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        },
+        "persistence": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 9.0
+        },
+        "reconnaissance": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "resource-development": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "stealth": {
+          "precision": 0.2857142857142857,
+          "recall": 1.0,
+          "f1-score": 0.4444444444444444,
+          "support": 4.0
+        },
+        "accuracy": 0.5487804878048781,
+        "macro avg": {
+          "precision": 0.4117901706137,
+          "recall": 0.4149921507064364,
+          "f1-score": 0.38001918716204436,
+          "support": 82.0
+        },
+        "weighted avg": {
+          "precision": 0.5626525554789543,
+          "recall": 0.5487804878048781,
+          "f1-score": 0.5215238690848447,
+          "support": 82.0
+        }
+      },
+      "train_rows": 387,
+      "validation_rows": 83,
+      "test_rows": 82,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.09581881533101046
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.07762649867913027
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.09017857142857143
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.11992945326278659
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.09017857142857143
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.11352939062949122
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.13127125850340135
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.1098003303885657
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.11174983692106981
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.08697453340310483
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.1846719748505463
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.22090304813416944
+        },
+        {
+          "epoch": 13,
+          "validation_macro_f1": 0.23249447093786718
+        },
+        {
+          "epoch": 14,
+          "validation_macro_f1": 0.22758994759933435
+        },
+        {
+          "epoch": 15,
+          "validation_macro_f1": 0.2500417338652633
+        },
+        {
+          "epoch": 16,
+          "validation_macro_f1": 0.2289349702145009
+        },
+        {
+          "epoch": 17,
+          "validation_macro_f1": 0.29385386119257084
+        },
+        {
+          "epoch": 18,
+          "validation_macro_f1": 0.29743124522536285
+        },
+        {
+          "epoch": 19,
+          "validation_macro_f1": 0.33620268620268623
+        },
+        {
+          "epoch": 20,
+          "validation_macro_f1": 0.35431964651889464
+        },
+        {
+          "epoch": 21,
+          "validation_macro_f1": 0.4066972209428631
+        },
+        {
+          "epoch": 22,
+          "validation_macro_f1": 0.41026370795956046
+        },
+        {
+          "epoch": 23,
+          "validation_macro_f1": 0.41767111536696794
+        },
+        {
+          "epoch": 24,
+          "validation_macro_f1": 0.35301234863446845
+        },
+        {
+          "epoch": 25,
+          "validation_macro_f1": 0.30762832405689544
+        }
+      ],
+      "source": "attack",
+      "task": "Technique description -> single ATT&CK tactic; excludes multi-tactic records; not runtime malware classification",
+      "excluded_conflicting_texts": 0,
+      "split_group_sha256": {
+        "train": "d5d4c6d5cf71b42f81a15f36a0191fdd90457dcea179d8d76092267a217ce5a0",
+        "validation": "949a002cd5ef319f9db1b9ee032fdf92e0f599468466b438d9b93cd98cd98b3b",
+        "test": "8a6537eee57857494b11a9300e69557d8eab2c6a1558015a50f3b23ef7af3dfb"
+      }
+    },
+    "cve_triage": {
+      "metrics": {
+        "CRITICAL": {
+          "precision": 0.7307692307692307,
+          "recall": 0.4634146341463415,
+          "f1-score": 0.5671641791044776,
+          "support": 41.0
+        },
+        "HIGH": {
+          "precision": 0.6825396825396826,
+          "recall": 0.7478260869565218,
+          "f1-score": 0.7136929460580913,
+          "support": 115.0
+        },
+        "LOW": {
+          "precision": 0.5,
+          "recall": 0.6666666666666666,
+          "f1-score": 0.5714285714285714,
+          "support": 3.0
+        },
+        "MEDIUM": {
+          "precision": 0.7727272727272727,
+          "recall": 0.7906976744186046,
+          "f1-score": 0.7816091954022989,
+          "support": 129.0
+        },
+        "accuracy": 0.7256944444444444,
+        "macro avg": {
+          "precision": 0.6715090465090465,
+          "recall": 0.6671512655470336,
+          "f1-score": 0.6584737229983598,
+          "support": 288.0
+        },
+        "weighted avg": {
+          "precision": 0.7279007643590977,
+          "recall": 0.7256944444444444,
+          "f1-score": 0.7217718474345359,
+          "support": 288.0
+        }
+      },
+      "train_rows": 920,
+      "validation_rows": 230,
+      "test_rows": 288,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.2966753570771502
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.4131829947168741
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.4184366430382367
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.4544735477178423
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.4743921308576481
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.49977394826409427
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.5439647679058782
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.5086433413164928
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.5619026802417952
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.5399236823800976
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.5153262311152116
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.5232816110419886
+        },
+        {
+          "epoch": 13,
+          "validation_macro_f1": 0.511851581113277
+        },
+        {
+          "epoch": 14,
+          "validation_macro_f1": 0.5197469542539654
+        }
+      ],
+      "source": "nvd",
+      "task": "Known CVE description -> agreed published CVSS v3 severity; not zero-day discovery or severity verification",
+      "excluded_conflicting_texts": 1,
+      "split_group_sha256": {
+        "train": "f36588d90b4ce7b7cd6b5580d1b369d41661797fe4631edb2923ccc3998b9311",
+        "validation": "20698680f4406536ccffd2e8ee529d0d3d0d7f5b158a487fd946897416c8673e",
+        "test": "c9eb725062247ddc18bec8ff9d00d0aa9eec36f6a237b1381a2be5994160b784"
+      },
+      "source_coverage": {
+        "downloaded_records": 2000,
+        "matching_records_on_server": 5553,
+        "coverage": "First bounded page only; published 2024-01-01 through 2024-03-01. Not the full or latest CVE corpus."
+      }
+    }
+  },
+  "evaluation": "Group-held-out splits, validation-based epoch selection. Text tasks keep only exact unique nonconflicting examples; no claim of cross-product or temporal generalization.",
+  "learning_paths": {
+    "analyst": {
+      "training": "Exploit-DB descriptions -> exploit type; synthetic secret head retained",
+      "status": "trained",
+      "report": "models-more/report.json"
+    },
+    "defender": {
+      "training": "Generated secret fixtures -> secret-like/benign; independent critique and exhaustive sibling checks are orchestration",
+      "status": "synthetic_training_only",
+      "report": "models-specialists/report.json",
+      "missing_coverage": "No independently audited public secret-detection training set was imported. MITRE/NVD records are not credential labels."
+    },
+    "offense_test": {
+      "training": "Generated synthetic challenge cases -> measured detector-weakness reward for seven representations",
+      "status": "synthetic_training_only",
+      "report": "models-specialists/report.json",
+      "missing_coverage": "A learned test-selection policy needs measured test rewards. Tool docs and CVE descriptions alone do not supply these labels."
+    },
+    "offense_tools": {
+      "training": "Public Parrot descriptions -> published parent category; Kali+Parrot retrieval supplies references",
+      "status": "public_data_trained",
+      "report": "models-specialists/report.json"
+    },
+    "malware_static": {
+      "training": "241 Android permission/API features -> malware/goodware source label; does not analyze arbitrary binary bytes",
+      "status": "public_data_trained",
+      "report": "models-public/report.json"
+    },
+    "bounty_review": {
+      "training": "Code example -> documented flawed/good label; no whole-repository data-flow proof",
+      "status": "public_data_trained",
+      "report": "models-public/report.json"
+    },
+    "malware_behavior": {
+      "training": "Technique description -> single ATT&CK tactic; excludes multi-tactic records; not runtime malware classification",
+      "status": "public_data_trained",
+      "report": "models-public/report.json"
+    },
+    "cve_triage": {
+      "training": "Known CVE description -> agreed published CVSS v3 severity; not zero-day discovery or severity verification",
+      "status": "public_data_trained",
+      "report": "models-public/report.json"
+    }
+  }
+}

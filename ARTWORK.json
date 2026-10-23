@@ -1,0 +1,177 @@
+[
+  {
+    "file": "web/art/signal.png",
+    "source": "user-supplied reference attachment",
+    "sha256": "40d29d9cd2bd3657785336c04ab7b73dc80dcaa773679cb7107ca64a9f64d584",
+    "license": "Not independently verified; original embedded attribution retained.",
+    "use": "Decorative visual only; not operational telemetry."
+  },
+  {
+    "file": "web/art/crimson.png",
+    "source": "user-supplied reference attachment",
+    "sha256": "2f231e689e34910543387972bcd87ec9a34de8d21e846a79342f5287eaa5722e",
+    "license": "Not independently verified; original embedded attribution retained.",
+    "use": "Decorative visual only; not operational telemetry."
+  },
+  {
+    "file": "web/art/cipher.png",
+    "source": "user-supplied reference attachment",
+    "sha256": "f358d30742c6ebfbe151fd87fe5d5802dad914c58ab147f2a95efde293e006d0",
+    "license": "Not independently verified; original embedded attribution retained.",
+    "use": "Decorative visual only; not operational telemetry."
+  },
+  {
+    "file": "web/art/atlas.png",
+    "source": "user-supplied reference attachment",
+    "sha256": "33dc9b7af51170139b12bcb2940a8ac01d99189096869839280fe4183344177c",
+    "license": "Not independently verified; original embedded attribution retained.",
+    "use": "Decorative visual only; not operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-01-tactical-reaper-hero.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_01_Tactical_Reaper_Hero.png",
+    "sha256": "479bbb03f6b6f3153b1d8d2a9ab7e0675c79cb59f7d83e3ec6bac6f463dd73bf",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-02-circular-reaper-patch.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_02_Circular_Reaper_Patch.png",
+    "sha256": "f876a11d75d5396c1ce121b6773db132012c9ec1dddd8a800f0d55ba956d3b17",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-03-drone-a-insignia.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_03_Drone_A_Insignia.png",
+    "sha256": "02360f4d1e8f1ecff95b5a358bcfa546626b0270086774f204294599f56f9aec",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-04-embroidered-cyber-patch.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_04_Embroidered_Cyber_Patch.png",
+    "sha256": "da0f35172c949e6b1afc95b5e00e5d9e3c67f6fe7c5ab0b12aa11cf810e71966",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-05-recon-drone.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_05_Recon_Drone.png",
+    "sha256": "2fd54ac0646ed1567ac412c10e6dd44172151d7d261966be441f81dd785d9c51",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-06-raven-crest.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_06_Raven_Crest.png",
+    "sha256": "5946b9694f01f215c19607464fc1ac9e01adf18f4e7d6b6f6cb7f14b16615b3e",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-07-ghost-protocol-wings.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_07_Ghost_Protocol_Wings.png",
+    "sha256": "22ab8ad551e0ee379d2899aca82c4889b8e6936cfa1822ca0c029a1c2eb8a16e",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-08-black-territory.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_08_Black_Territory.png",
+    "sha256": "7863d314f75efc969aa288ed9369cfe885201c04c344a7e628e9edc032c38357",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-09-electronic-warfare.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_09_Electronic_Warfare.png",
+    "sha256": "ad409b8475ec0e0468836a4db604267b6b194adc3c9554c9c7c6ba7c68741ef1",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-10-global-isr.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_10_Global_ISR.png",
+    "sha256": "4e7da3c58da5d4cf9a10a19af850d5ee2fc50dc291f7437af7054416ebf443de",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-a-11-beyond-the-grid.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_A_11_Beyond_The_Grid.png",
+    "sha256": "de78c735d73a707911d112bd0f1e944ce885138e0a19c2b74efd2e615abdebac",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-01-fallen-angel-hero.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_01_Fallen_Angel_Hero.png",
+    "sha256": "cbb812bcb90c1e0bd6bccfdd1d8dca62cd7d2b40676dcd15af8c6516065deab7",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-02-winged-reaper-sigil.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_02_Winged_Reaper_Sigil.png",
+    "sha256": "be46232de9266f2302f3071c66e59fe04d25fa074e63f7e4fd5e161bc3d79a35",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-03-tactical-a-monogram.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_03_Tactical_A_Monogram.png",
+    "sha256": "f5f936d9515fdbddf6347c2b9360a88f6375c247847ffcf432613bfe62d0ca81",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-04-round-special-ops-patch.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_04_Round_Special_Ops_Patch.png",
+    "sha256": "e1bee4701b79fba44b9520fb23171f41498d47a69a7cbb26b0cf5da7b30e0cc8",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-05-ghost-protocol-helmet.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_05_Ghost_Protocol_Helmet.png",
+    "sha256": "628e5f09e456dfc49e04a97646aacff1aeac087784db1a41182d94b0b6a146d5",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-06-night-vision-skull.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_06_Night_Vision_Skull.png",
+    "sha256": "4b2b288a18e63bc7377fa023171d8363d0126ed953f4c488a7a1a4997336ec01",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-07-minimal-a-insignia.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_07_Minimal_A_Insignia.png",
+    "sha256": "6ea2fd01a59ddaacd58f54c81ce1a6fe0f64a028715009181e8723cc3cfd7a61",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-08-drone-skull.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_08_Drone_Skull.png",
+    "sha256": "a2ee8fac642fd2b3bc7fc02d4aef4b74c48ffe5dead74fb0706530d8ea41cf73",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-09-red-ghost-map.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_09_Red_Ghost_Map.png",
+    "sha256": "e62e1aa7f573d42b48f4230bbedc9581d9fd8266f35441cb5a58aa6b7ba50fe7",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  },
+  {
+    "file": "web/art/board-b-10-stealth-aircraft.png",
+    "source": "/home/deadbyte/Music/AZRAEL_54_Individual_Designs/Board_B_10_Stealth_Aircraft.png",
+    "sha256": "52d2a65668ff7ecf5fe6083cf426a52114902e96a55915933e7772c8b4d8848f",
+    "license": "User supplied; rights not independently verified.",
+    "use": "Decorative AZRAEL-54 artwork, never operational telemetry."
+  }
+]

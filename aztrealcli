@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+"""AZTREÁL training manager, using the project's installed interpreter."""
+import os
+from pathlib import Path
+import sys
+
+ROOT=Path(__file__).resolve().parent
+sys.path.insert(0,str(ROOT))
+from aztreal_training.runtime import interpreter
+try:python=interpreter(ROOT)
+except ValueError as error:
+    print(str(error),file=sys.stderr);raise SystemExit(2)
+if Path(sys.executable).absolute()!=python.absolute() and python.is_file():
+    os.execv(str(python),[str(python),'-B',str(ROOT/'aztrealcli'),*sys.argv[1:]])
+from aztreal_training.cli import main
+raise SystemExit(main())

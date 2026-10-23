@@ -1,0 +1,373 @@
+{
+  "defender": {
+    "metrics": {
+      "benign": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 400.0
+      },
+      "potential_secret": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 2800.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 3200.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 3200.0
+      }
+    },
+    "train_rows": 10240,
+    "validation_rows": 2560,
+    "test_rows": 3200,
+    "history": [
+      {
+        "epoch": 1,
+        "validation_macro_f1": 1.0
+      },
+      {
+        "epoch": 2,
+        "validation_macro_f1": 1.0
+      },
+      {
+        "epoch": 3,
+        "validation_macro_f1": 1.0
+      },
+      {
+        "epoch": 4,
+        "validation_macro_f1": 1.0
+      },
+      {
+        "epoch": 5,
+        "validation_macro_f1": 1.0
+      },
+      {
+        "epoch": 6,
+        "validation_macro_f1": 1.0
+      }
+    ]
+  },
+  "offense_test": {
+    "train_cases": 1280,
+    "validation_cases": 320,
+    "test_cases": 400,
+    "reward_definition": "one minus mean analyst/defender potential-secret score; synthetic benchmark only",
+    "test_mse": 0.00024264375679194927,
+    "selected_mean_reward": 0.028904400765895844,
+    "uniform_family_mean_reward": 0.005254180170595646,
+    "history": [
+      {
+        "epoch": 1,
+        "validation_mse": 0.10371226817369461
+      },
+      {
+        "epoch": 2,
+        "validation_mse": 0.007667143829166889
+      },
+      {
+        "epoch": 3,
+        "validation_mse": 0.000959059689193964
+      },
+      {
+        "epoch": 4,
+        "validation_mse": 0.0007048221305012703
+      },
+      {
+        "epoch": 5,
+        "validation_mse": 0.0006856287945993245
+      },
+      {
+        "epoch": 6,
+        "validation_mse": 0.0006818671827204525
+      },
+      {
+        "epoch": 7,
+        "validation_mse": 0.000679001328535378
+      },
+      {
+        "epoch": 8,
+        "validation_mse": 0.0006757736555300653
+      },
+      {
+        "epoch": 9,
+        "validation_mse": 0.000672211404889822
+      },
+      {
+        "epoch": 10,
+        "validation_mse": 0.0006681842496618629
+      },
+      {
+        "epoch": 11,
+        "validation_mse": 0.0006639399216510355
+      },
+      {
+        "epoch": 12,
+        "validation_mse": 0.0006593074067495763
+      },
+      {
+        "epoch": 13,
+        "validation_mse": 0.0006539684254676104
+      },
+      {
+        "epoch": 14,
+        "validation_mse": 0.0006464653997682035
+      },
+      {
+        "epoch": 15,
+        "validation_mse": 0.0006322824629023671
+      },
+      {
+        "epoch": 16,
+        "validation_mse": 0.0006085259956307709
+      },
+      {
+        "epoch": 17,
+        "validation_mse": 0.0005717910826206207
+      },
+      {
+        "epoch": 18,
+        "validation_mse": 0.0005330805433914065
+      },
+      {
+        "epoch": 19,
+        "validation_mse": 0.0005060546100139618
+      },
+      {
+        "epoch": 20,
+        "validation_mse": 0.0004904910456389189
+      },
+      {
+        "epoch": 21,
+        "validation_mse": 0.0004711599613074213
+      },
+      {
+        "epoch": 22,
+        "validation_mse": 0.0004543918475974351
+      },
+      {
+        "epoch": 23,
+        "validation_mse": 0.0004527387791313231
+      },
+      {
+        "epoch": 24,
+        "validation_mse": 0.0004428480169735849
+      },
+      {
+        "epoch": 25,
+        "validation_mse": 0.0004454093868844211
+      }
+    ]
+  },
+  "offense_tools": {
+    "metrics": {
+      "Digital Forensics": {
+        "precision": 0.8888888888888888,
+        "recall": 0.8888888888888888,
+        "f1-score": 0.8888888888888888,
+        "support": 9.0
+      },
+      "Exploitation Tools": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 5.0
+      },
+      "Information Gathering": {
+        "precision": 0.5789473684210527,
+        "recall": 0.6875,
+        "f1-score": 0.6285714285714286,
+        "support": 16.0
+      },
+      "Maintaining Access": {
+        "precision": 0.8,
+        "recall": 0.5714285714285714,
+        "f1-score": 0.6666666666666666,
+        "support": 7.0
+      },
+      "Password Attacks": {
+        "precision": 0.4444444444444444,
+        "recall": 0.4444444444444444,
+        "f1-score": 0.4444444444444444,
+        "support": 9.0
+      },
+      "Post Exploitation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 3.0
+      },
+      "Reverse Engineering": {
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1-score": 0.8571428571428571,
+        "support": 4.0
+      },
+      "Sniffing & Spoofing": {
+        "precision": 0.5,
+        "recall": 0.5,
+        "f1-score": 0.5,
+        "support": 6.0
+      },
+      "Vulnerability Analysis": {
+        "precision": 0.5714285714285714,
+        "recall": 0.5,
+        "f1-score": 0.5333333333333333,
+        "support": 8.0
+      },
+      "Web Application Analysis": {
+        "precision": 0.5,
+        "recall": 0.875,
+        "f1-score": 0.6363636363636364,
+        "support": 8.0
+      },
+      "Wireless Testing": {
+        "precision": 0.7,
+        "recall": 0.875,
+        "f1-score": 0.7777777777777778,
+        "support": 8.0
+      },
+      "accuracy": 0.6144578313253012,
+      "macro avg": {
+        "precision": 0.5439735702893598,
+        "recall": 0.5538419913419914,
+        "f1-score": 0.539380821199003,
+        "support": 83.0
+      },
+      "weighted avg": {
+        "precision": 0.5787299574236797,
+        "recall": 0.6144578313253012,
+        "f1-score": 0.5871346859298666,
+        "support": 83.0
+      }
+    },
+    "train_rows": 264,
+    "validation_rows": 67,
+    "test_rows": 83,
+    "history": [
+      {
+        "epoch": 1,
+        "validation_macro_f1": 0.13058502524986793
+      },
+      {
+        "epoch": 2,
+        "validation_macro_f1": 0.1379493946338866
+      },
+      {
+        "epoch": 3,
+        "validation_macro_f1": 0.07727652464494571
+      },
+      {
+        "epoch": 4,
+        "validation_macro_f1": 0.1145986641005321
+      },
+      {
+        "epoch": 5,
+        "validation_macro_f1": 0.18634249061657474
+      },
+      {
+        "epoch": 6,
+        "validation_macro_f1": 0.18930735930735929
+      },
+      {
+        "epoch": 7,
+        "validation_macro_f1": 0.21757249842356224
+      },
+      {
+        "epoch": 8,
+        "validation_macro_f1": 0.27469323189644845
+      },
+      {
+        "epoch": 9,
+        "validation_macro_f1": 0.2673472095984463
+      },
+      {
+        "epoch": 10,
+        "validation_macro_f1": 0.284389901398699
+      },
+      {
+        "epoch": 11,
+        "validation_macro_f1": 0.32276082089792973
+      },
+      {
+        "epoch": 12,
+        "validation_macro_f1": 0.34270606127308745
+      },
+      {
+        "epoch": 13,
+        "validation_macro_f1": 0.35944947308583675
+      },
+      {
+        "epoch": 14,
+        "validation_macro_f1": 0.4232782369146006
+      },
+      {
+        "epoch": 15,
+        "validation_macro_f1": 0.38680742210722874
+      },
+      {
+        "epoch": 16,
+        "validation_macro_f1": 0.3458776072412436
+      },
+      {
+        "epoch": 17,
+        "validation_macro_f1": 0.3869094673442499
+      },
+      {
+        "epoch": 18,
+        "validation_macro_f1": 0.4411255411255411
+      },
+      {
+        "epoch": 19,
+        "validation_macro_f1": 0.48177713456305826
+      },
+      {
+        "epoch": 20,
+        "validation_macro_f1": 0.54921083700988
+      },
+      {
+        "epoch": 21,
+        "validation_macro_f1": 0.44914693149987267
+      },
+      {
+        "epoch": 22,
+        "validation_macro_f1": 0.4226508785332314
+      },
+      {
+        "epoch": 23,
+        "validation_macro_f1": 0.4197982868195634
+      },
+      {
+        "epoch": 24,
+        "validation_macro_f1": 0.36890685072503254
+      },
+      {
+        "epoch": 25,
+        "validation_macro_f1": 0.37612054612054613
+      }
+    ],
+    "excluded_small_categories": {
+      "System Services": 7,
+      "Development": 2,
+      "Automotive": 1,
+      "Engineering": 1,
+      "Utility": 8,
+      "Reporting Tools": 4,
+      "Network": 3,
+      "AI Tools": 5
+    },
+    "source_sha256": "28bd71f665b9197eba9483d9809e24ac6cce714e0eb1603f72de077a65e6c2f4",
+    "scope": "Parrot descriptions to parent category; random split; not task-to-tool suitability evaluation"
+  },
+  "elapsed_seconds": 5.828210808002041,
+  "limits": "Synthetic secret tests only; tool category labels are public catalog metadata. No live-target or real-secret evaluation. CPU and peak memory unmeasured."
+}

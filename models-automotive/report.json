@@ -1,0 +1,189 @@
+{
+  "source_url": "https://github.com/etas/SynCAN",
+  "source_file": "test_flooding.zip",
+  "source_sha256": "1a99203e5cc26029d3f29dff0d2cc1bcb1f2c062f43fbfffa8f45918ed7694fa",
+  "citation": "Hanselmann, Strauss, Dormann & Ulmer (2020), CANet: An Unsupervised Intrusion Detection System for High Dimensional CAN Bus Data, IEEE Access 8:58194\u201358205",
+  "license_file": "data/syncan-license.txt",
+  "limitations": "SynCAN ETAS/Bosch non-commercial simulation-only model. Not licensed or validated for field/vehicle use. No CAN interface, injection, ECU control or transmission.",
+  "source_rows_examined": 2575803,
+  "nonoverlapping_windows": 40246,
+  "evaluation": "Supervised experimental reuse of the published flooding test set; NOT the upstream unsupervised benchmark protocol. 64-message nonoverlapping windows grouped by one-minute source-time blocks. No independent vehicle/capture or full attack-episode split.",
+  "models": {
+    "automotive_red": {
+      "metrics": {
+        "normal_window": {
+          "precision": 0.9992936606039202,
+          "recall": 1.0,
+          "f1-score": 0.9996467055290584,
+          "support": 5659.0
+        },
+        "attack_window": {
+          "precision": 1.0,
+          "recall": 0.9983818770226537,
+          "f1-score": 0.9991902834008097,
+          "support": 2472.0
+        },
+        "accuracy": 0.9995080555897183,
+        "macro avg": {
+          "precision": 0.9996468303019601,
+          "recall": 0.9991909385113269,
+          "f1-score": 0.999418494464934,
+          "support": 8131.0
+        },
+        "weighted avg": {
+          "precision": 0.9995084030694361,
+          "recall": 0.9995080555897183,
+          "f1-score": 0.9995079433225609,
+          "support": 8131.0
+        }
+      },
+      "train_rows": 25699,
+      "validation_rows": 6416,
+      "test_rows": 8131,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.9966371708627488
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.9977601558395314
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.9983208802398015
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.9986944131014506
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.9986944131014506
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.9990677197829543
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.9992542884515944
+        }
+      ],
+      "task": "Automotive red \u00b7 locate anomalous synthetic traffic windows",
+      "limits": "SynCAN ETAS/Bosch non-commercial simulation-only model. Not licensed or validated for field/vehicle use. No CAN interface, injection, ECU control or transmission."
+    },
+    "automotive_blue": {
+      "metrics": {
+        "normal_window": {
+          "precision": 0.9992936606039202,
+          "recall": 1.0,
+          "f1-score": 0.9996467055290584,
+          "support": 5659.0
+        },
+        "attack_window": {
+          "precision": 1.0,
+          "recall": 0.9983818770226537,
+          "f1-score": 0.9991902834008097,
+          "support": 2472.0
+        },
+        "accuracy": 0.9995080555897183,
+        "macro avg": {
+          "precision": 0.9996468303019601,
+          "recall": 0.9991909385113269,
+          "f1-score": 0.999418494464934,
+          "support": 8131.0
+        },
+        "weighted avg": {
+          "precision": 0.9995084030694361,
+          "recall": 0.9995080555897183,
+          "f1-score": 0.9995079433225609,
+          "support": 8131.0
+        }
+      },
+      "train_rows": 25699,
+      "validation_rows": 6416,
+      "test_rows": 8131,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.9970117273168574
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.9977601558395314
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.9979471207318205
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.9985076749722602
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.9988810946856183
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.9988814326773916
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.9990677197829543
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.9990677197829543
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 13,
+          "validation_macro_f1": 0.9992542884515944
+        },
+        {
+          "epoch": 14,
+          "validation_macro_f1": 0.9992542884515944
+        }
+      ],
+      "task": "Automotive blue \u00b7 independent synthetic CAN-window intrusion review",
+      "limits": "SynCAN ETAS/Bosch non-commercial simulation-only model. Not licensed or validated for field/vehicle use. No CAN interface, injection, ECU control or transmission."
+    }
+  }
+}

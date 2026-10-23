@@ -1,0 +1,27 @@
+{
+  "features": [
+    "id_fraction_1",
+    "id_fraction_2",
+    "id_fraction_3",
+    "id_fraction_4",
+    "id_fraction_5",
+    "id_fraction_6",
+    "id_fraction_7",
+    "id_fraction_8",
+    "id_fraction_9",
+    "id_fraction_10",
+    "gap_mean",
+    "gap_std",
+    "gap_max",
+    "window_duration",
+    "signal_mean_1",
+    "signal_mean_2",
+    "signal_mean_3",
+    "signal_mean_4",
+    "signal_std_1",
+    "signal_std_2",
+    "signal_std_3",
+    "signal_std_4"
+  ],
+  "scope": "SynCAN ETAS/Bosch non-commercial simulation-only model. Not licensed or validated for field/vehicle use. No CAN interface, injection, ECU control or transmission."
+}

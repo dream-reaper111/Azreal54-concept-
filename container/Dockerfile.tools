@@ -1,0 +1,7 @@
+FROM docker.io/kalilinux/kali-rolling:latest
+RUN apt-get update && apt-get install -y --no-install-recommends python3 curl nmap nikto whatweb yara can-utils ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /opt/lab
+COPY recipes.py tool_broker.py ./
+USER 1000:1000
+ENV HOME=/tmp PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+CMD ["python3", "tool_broker.py"]

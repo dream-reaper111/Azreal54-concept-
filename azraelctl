@@ -1,0 +1,1954 @@
+#!/usr/bin/env python3
+"""Rootless AZRAEL-54 installer and service lifecycle command."""
+from __future__ import annotations
+
+import argparse
+from contextlib import contextmanager
+from datetime import datetime, timezone
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import pwd
+import re
+import shlex
+import shutil
+import sqlite3
+import subprocess
+import sys
+import tempfile
+import time
+
+ROOT = Path(os.environ.get('AZRAEL_HOME', Path(__file__).resolve().parent)).expanduser().resolve()
+RUNTIME = ROOT / '.runtime'
+STATE = RUNTIME / 'deployment.json'
+ENV_FILE = RUNTIME / 'compose.env'
+GPU_COMPOSE_FILE = RUNTIME / 'compose.gpu.generated.yaml'
+SYSTEMD_DIR = Path.home() / '.config/systemd/user'
+UNIT_FILE = SYSTEMD_DIR / 'azrael54.service'
+COMPOSE_PROVIDER_DIR = RUNTIME / 'podman-compose-provider'
+COMPOSE_PROVIDER_BIN = RUNTIME / 'bin' / 'podman-compose'
+CDI_COMPAT_DIR = RUNTIME / 'cdi-compat'
+CDI_COMPAT_WRAPPER = ROOT / 'container' / 'podman-cdi-compat.sh'
+PROJECT = 'azrael54'
+BACKUP_ROOT = Path('/data/work/azrael54-backups/host-recovery-20261020T172811Z')
+SERVICES = ('tools', 'imports', 'web-lab', 'external-tools', 'dashboard', 'frontend')
+START_ORDER = ('tools', 'imports', 'external-tools', 'web-lab', 'dashboard', 'frontend')
+EXIT_DEPENDENCY = 3
+EXIT_DEPLOYMENT = 4
+
+
+class DeploymentError(RuntimeError):
+    pass
+
+
+CDI_COMPAT_ACTIVE = False
+
+
+def compatible_cdi_text(source, host_library_root=Path('/usr/lib/x86_64-linux-gnu')):
+    """Build a Podman 4.9/read-only compatible, CUDA-only view of NVIDIA CDI."""
+    import yaml
+
+    spec = yaml.safe_load(source)
+    if (not isinstance(spec, dict) or spec.get('cdiVersion') != '0.5.0' or
+            spec.get('kind') != 'nvidia.com/gpu' or 'additionalGids' in source):
+        raise DeploymentError('NVIDIA Toolkit did not generate the expected Podman-compatible CDI 0.5 spec')
+    devices = spec.get('devices')
+    if not isinstance(devices, list) or not devices:
+        raise DeploymentError('Generated NVIDIA CDI spec has no devices')
+    uuids = [str(item.get('name', '')) for item in devices if isinstance(item, dict)
+             and re.fullmatch(r'GPU-[A-Fa-f0-9-]{36}', str(item.get('name', '')))]
+    if not uuids:
+        raise DeploymentError('Generated NVIDIA CDI spec contains no UUID names for stable GPU selection')
+
+    library_root = Path('/usr/lib/x86_64-linux-gnu')
+    host_library_root = Path(host_library_root).resolve()
+    generated_mounts = []
+    destinations = set()
+
+    def add_library_alias(source_path, destination):
+        """Replace a create-symlinks action with one read-only in-root bind mount."""
+        target = Path(destination)
+        if (not target.is_absolute() or target != Path(os.path.normpath(str(target))) or
+                not target.is_relative_to(library_root)):
+            # Display, Xorg, and other non-CUDA aliases are intentionally omitted.
+            return
+        if not target.name.startswith(('libcuda', 'libcudadebugger', 'libnvcuvid', 'libnvidia-', 'libnvoptix')):
+            return
+        src = Path(source_path)
+        if src.is_absolute():
+            raise DeploymentError('NVIDIA CDI library alias source must be relative to its target directory')
+        relative_target = target.relative_to(library_root)
+        try:
+            resolved = (host_library_root / relative_target.parent / src).resolve(strict=True)
+        except OSError as error:
+            raise DeploymentError('NVIDIA CDI library alias target is missing or inaccessible') from error
+        if not resolved.is_relative_to(host_library_root) or not resolved.is_file():
+            raise DeploymentError('NVIDIA CDI library alias resolves outside the host driver library directory')
+        if str(target) in destinations:
+            prior = next(item for item in generated_mounts if item['containerPath'] == str(target))
+            if prior['hostPath'] != str(resolved):
+                raise DeploymentError('NVIDIA CDI library aliases collide at one container path')
+            return
+        destinations.add(str(target))
+        generated_mounts.append({'hostPath': str(resolved), 'containerPath': str(target),
+                                 'options': ['ro', 'nosuid', 'nodev', 'rbind', 'rprivate']})
+
+    def strip_hooks(edits, *, per_device=False):
+        if not isinstance(edits, dict):
+            return
+        nodes = edits.get('deviceNodes', [])
+        if isinstance(nodes, list):
+            # The lab uses CUDA compute only; DRM/display nodes are not required.
+            edits['deviceNodes'] = [node for node in nodes if not (
+                isinstance(node, dict) and str(node.get('path', '')).startswith('/dev/dri/')
+            )]
+        hooks = edits.get('hooks', [])
+        retained = []
+        for hook in hooks if isinstance(hooks, list) else []:
+            if not isinstance(hook, dict):
+                raise DeploymentError('NVIDIA CDI contains a malformed hook')
+            args = hook.get('args', [])
+            command = args[1] if len(args) > 1 else ''
+            if command == 'create-symlinks':
+                if not per_device:
+                    index = 2
+                    while index < len(args):
+                        if args[index] == '--link' and index + 1 < len(args):
+                            pair = str(args[index + 1])
+                            if pair.count('::') != 1:
+                                raise DeploymentError('NVIDIA CDI contains a malformed library symlink action')
+                            source_path, destination = pair.split('::', 1)
+                            add_library_alias(source_path, destination)
+                            index += 2
+                        else:
+                            index += 1
+                continue
+            if command in ('update-ldcache', 'update-application-profile'):
+                # These mutate image state or host-facing profile state and are
+                # unnecessary when library aliases are mounted directly.
+                continue
+            retained.append(hook)
+        if hooks:
+            edits['hooks'] = retained
+
+    for device in devices:
+        if not isinstance(device, dict) or not isinstance(device.get('containerEdits', {}), dict):
+            raise DeploymentError('NVIDIA CDI contains a malformed device entry')
+        strip_hooks(device.get('containerEdits', {}), per_device=True)
+    edits = spec.get('containerEdits', {})
+    if not isinstance(edits, dict):
+        raise DeploymentError('NVIDIA CDI global edits are malformed')
+    strip_hooks(edits)
+
+    # Only retain host library files needed by CUDA/NVML. Drop host sockets,
+    # utility binaries, display configs, firmware, and graphics-only mounts.
+    mounts = edits.get('mounts', [])
+    retained_mounts = []
+    for mount in mounts if isinstance(mounts, list) else []:
+        if not isinstance(mount, dict):
+            raise DeploymentError('NVIDIA CDI contains a malformed mount')
+        host_path = Path(str(mount.get('hostPath', '')))
+        container_path = Path(str(mount.get('containerPath', '')))
+        if (host_path == Path('/usr/bin/nvidia-smi') and
+                container_path == Path('/usr/bin/nvidia-smi')):
+            try:
+                resolved = host_path.resolve(strict=True)
+            except OSError as error:
+                raise DeploymentError('NVIDIA CDI nvidia-smi source is missing or inaccessible') from error
+            if not resolved.is_file():
+                raise DeploymentError('NVIDIA CDI nvidia-smi source is not a regular file')
+            retained_mounts.append({'hostPath': str(resolved),
+                                    'containerPath': '/usr/bin/nvidia-smi',
+                                    'options': ['ro', 'nosuid', 'nodev', 'rbind', 'rprivate']})
+            continue
+        if (host_path.is_absolute() and container_path.is_absolute() and
+                container_path.is_relative_to(library_root) and
+                container_path.name.startswith(('libcuda', 'libcudadebugger', 'libnvcuvid', 'libnvidia-', 'libnvoptix'))):
+            try:
+                resolved = host_path.resolve(strict=True)
+            except OSError as error:
+                raise DeploymentError('NVIDIA CDI driver mount source is missing or inaccessible') from error
+            if not resolved.is_relative_to(host_library_root) or not resolved.is_file():
+                raise DeploymentError('NVIDIA CDI driver mount resolves outside the host library directory')
+            mount['hostPath'] = str(resolved)
+            mount['options'] = ['ro', 'nosuid', 'nodev', 'rbind', 'rprivate']
+            retained_mounts.append(mount)
+    edits['mounts'] = retained_mounts + generated_mounts
+    env = edits.get('env', [])
+    if not isinstance(env, list):
+        raise DeploymentError('NVIDIA CDI environment edits are malformed')
+    edits['env'] = [item for item in env if not str(item).startswith('LD_LIBRARY_PATH=')]
+    edits['env'].append('LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu')
+    return yaml.safe_dump(spec, sort_keys=False, explicit_start=True)
+
+
+def ensure_cdi_compat_spec():
+    """Create a private, user-owned CDI spec compatible with this host Podman."""
+    global CDI_COMPAT_ACTIVE
+    executable = shutil.which('nvidia-ctk')
+    if not executable:
+        raise DeploymentError('nvidia-ctk is unavailable; cannot prepare rootless NVIDIA CDI compatibility')
+    log_path()
+    CDI_COMPAT_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if CDI_COMPAT_DIR.is_symlink() or CDI_COMPAT_DIR.stat().st_uid != os.getuid():
+        raise DeploymentError('Private CDI compatibility directory must be owned by the project user')
+    CDI_COMPAT_DIR.chmod(0o700)
+    # Podman reads every YAML file in a CDI directory. Remove only staging files
+    # written by earlier versions of this helper; never hide unrelated specs.
+    for stale in CDI_COMPAT_DIR.glob('nvidia.*.tmp.yaml'):
+        metadata = stale.lstat()
+        if stale.is_symlink() or not stale.is_file() or metadata.st_uid != os.getuid():
+            raise DeploymentError(f'Refusing to remove unexpected CDI staging file: {stale.name}')
+        stale.unlink()
+    unexpected_specs = [item.name for item in CDI_COMPAT_DIR.glob('*.yaml')
+                        if item.name != 'nvidia.yaml']
+    if unexpected_specs:
+        raise DeploymentError('Private CDI directory contains unexpected specs: ' + ', '.join(unexpected_specs))
+    fd, temporary_name = tempfile.mkstemp(prefix='nvidia.', suffix='.yaml', dir=RUNTIME)
+    os.close(fd)
+    temporary = Path(temporary_name)
+    try:
+        result = subprocess.run(
+            [executable, 'cdi', 'generate', '--feature-flag',
+             'no-additional-gids-for-device-nodes', '--output', str(temporary)],
+            cwd=ROOT, capture_output=True, text=True, timeout=90,
+        )
+        if result.returncode:
+            raise DeploymentError('NVIDIA CDI compatibility generation failed: ' +
+                                  (result.stderr or result.stdout).strip()[-1200:])
+        source = temporary.read_text()
+        converted = compatible_cdi_text(source)
+        import yaml
+        spec = yaml.safe_load(converted)
+        if not isinstance(spec, dict) or spec.get('kind') != 'nvidia.com/gpu' or not spec.get('devices'):
+            raise DeploymentError('Generated NVIDIA CDI compatibility spec did not validate')
+        names = {str(item.get('name', '')) for item in spec['devices'] if isinstance(item, dict)}
+        try:
+            import setup_lab
+            expected = {item['uuid'].lower().replace('gpu-', 'gpu-') for item in setup_lab.host_gpu_inventory()}
+        except (ImportError, KeyError, OSError, RuntimeError, ValueError):
+            expected = set()
+        if expected and not {item.casefold() for item in expected}.issubset(
+                {item.casefold() for item in names}):
+            raise DeploymentError('Generated CDI aliases do not cover every detected host GPU UUID')
+        destination = CDI_COMPAT_DIR / 'nvidia.yaml'
+        if destination.is_symlink():
+            raise DeploymentError('Refusing to replace a symlink at the private CDI compatibility spec')
+        staged = CDI_COMPAT_DIR / 'nvidia.yaml.new'
+        out_fd = os.open(staged, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
+        with os.fdopen(out_fd, 'w') as stream:
+            stream.write(converted)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(staged, destination)
+        destination.chmod(0o600)
+        CDI_COMPAT_ACTIVE = True
+        os.environ['AZRAEL_CDI_COMPAT_SPEC_DIR'] = str(CDI_COMPAT_DIR)
+        note('Prepared private rootless CDI compatibility spec (NVIDIA spec 0.5.0; no system files changed)')
+        return {'status': 'passed', 'directory': str(CDI_COMPAT_DIR), 'spec_version': spec['cdiVersion'],
+                'feature_flag': 'no-additional-gids-for-device-nodes', 'stable_uuid_aliases': sorted(expected or names)}
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def podman_compat_argv(argv):
+    if not CDI_COMPAT_ACTIVE or Path(argv[0]).name != 'podman':
+        return argv
+    if not CDI_COMPAT_WRAPPER.is_file() or CDI_COMPAT_WRAPPER.is_symlink():
+        raise DeploymentError('Rootless CDI compatibility wrapper is missing or unsafe')
+    executable = shutil.which('podman') or argv[0]
+    return [executable, 'unshare', str(CDI_COMPAT_WRAPPER), str(CDI_COMPAT_DIR), *argv]
+
+
+def patch_podman_compose_source(source):
+    """Make podman-compose 1.x honor service-scoped --no-deps recreation."""
+    old_excluded = '''def get_excluded(compose, args):
+    excluded = set()
+    if args.services:
+        excluded = set(compose.services)
+        for service in args.services:
+            excluded -= compose.services[service]["_deps"]
+            excluded.discard(service)
+    log("** excluding: ", excluded)
+    return excluded
+'''
+    new_excluded = '''def get_excluded(compose, args):
+    excluded = set()
+    if args.services:
+        excluded = set(compose.services)
+        if getattr(args, "no_deps", False):
+            for service in args.services:
+                excluded.discard(service)
+        else:
+            for service in args.services:
+                excluded -= compose.services[service]["_deps"]
+                excluded.discard(service)
+    log("** excluding: ", excluded)
+    return excluded
+'''
+    old_recreate = '''    if args.force_recreate or len(diff_hashes):
+        log("recreating: ...")
+        down_args = argparse.Namespace(**dict(args.__dict__, volumes=False))
+        compose.commands["down"](compose, down_args)
+        log("recreating: done\\n\\n")
+'''
+    new_recreate = '''    partial_no_deps = bool(args.services) and getattr(args, "no_deps", False)
+    if partial_no_deps:
+        if args.force_recreate:
+            selected = set(args.services)
+            log("recreating selected services only: ", selected)
+            for cnt in compose.containers:
+                if cnt["_service"] in selected:
+                    compose.podman.run([], "rm", ["--force", cnt["name"]])
+    elif args.force_recreate or len(diff_hashes):
+        log("recreating: ...")
+        down_args = argparse.Namespace(**dict(args.__dict__, volumes=False))
+        compose.commands["down"](compose, down_args)
+        log("recreating: done\\n\\n")
+'''
+    if source.count(old_excluded) != 1 or source.count(old_recreate) != 1:
+        raise DeploymentError('Installed podman-compose source does not match the audited service-scoped compatibility patch')
+    return source.replace(old_excluded, new_excluded).replace(old_recreate, new_recreate)
+
+
+_COMPOSE_PROVIDER_READY = None
+
+
+def provider_executable():
+    """Install a private audited provider shim without changing host packages."""
+    global _COMPOSE_PROVIDER_READY
+    if _COMPOSE_PROVIDER_READY:
+        return _COMPOSE_PROVIDER_READY
+    try:
+        import inspect
+        import podman_compose
+    except ImportError as error:
+        raise DeploymentError('podman-compose Python module is unavailable to the AZRAEL control interpreter') from error
+    source_path = Path(inspect.getfile(podman_compose)).resolve(strict=True)
+    source = patch_podman_compose_source(source_path.read_text())
+    COMPOSE_PROVIDER_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if COMPOSE_PROVIDER_DIR.is_symlink() or COMPOSE_PROVIDER_DIR.stat().st_uid != os.getuid():
+        raise DeploymentError('Private podman-compose provider directory must be owned by the project user')
+    COMPOSE_PROVIDER_DIR.chmod(0o700)
+    module_path = COMPOSE_PROVIDER_DIR / 'podman_compose.py'
+    if not module_path.is_file() or module_path.is_symlink() or module_path.read_text() != source:
+        temporary = module_path.with_suffix('.tmp')
+        temporary.write_text(source)
+        temporary.chmod(0o600)
+        os.replace(temporary, module_path)
+    bin_dir = COMPOSE_PROVIDER_BIN.parent
+    bin_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if bin_dir.is_symlink() or bin_dir.stat().st_uid != os.getuid():
+        raise DeploymentError('Private provider launcher directory must be owned by the project user')
+    bin_dir.chmod(0o700)
+    launcher = ('#!/bin/sh\n'
+                f'export PYTHONPATH={shlex.quote(str(COMPOSE_PROVIDER_DIR))}${{PYTHONPATH:+:$PYTHONPATH}}\n'
+                f'exec {shlex.quote(sys.executable)} -c \'import podman_compose; podman_compose.main()\' "$@"\n')
+    if not COMPOSE_PROVIDER_BIN.is_file() or COMPOSE_PROVIDER_BIN.is_symlink() or COMPOSE_PROVIDER_BIN.read_text() != launcher:
+        temporary = COMPOSE_PROVIDER_BIN.with_suffix('.tmp')
+        temporary.write_text(launcher)
+        temporary.chmod(0o700)
+        os.replace(temporary, COMPOSE_PROVIDER_BIN)
+    COMPOSE_PROVIDER_BIN.chmod(0o700)
+    check = subprocess.run([str(COMPOSE_PROVIDER_BIN), '--version'], capture_output=True,
+                           text=True, timeout=30, cwd=ROOT)
+    if check.returncode or 'podman-compose version' not in check.stdout:
+        raise DeploymentError('Private service-scoped podman-compose provider failed its version probe: ' +
+                              (check.stderr or check.stdout).strip()[-600:])
+    _COMPOSE_PROVIDER_READY = str(COMPOSE_PROVIDER_BIN)
+    return _COMPOSE_PROVIDER_READY
+
+
+def log_path():
+    RUNTIME.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if RUNTIME.is_symlink() or RUNTIME.stat().st_uid != os.getuid():
+        raise DeploymentError('Runtime state directory must be a real directory owned by the current user')
+    RUNTIME.chmod(0o700)
+    return RUNTIME / 'azraelctl.log'
+
+
+def note(message):
+    timestamp = datetime.now(timezone.utc).isoformat()
+    line = f'[{timestamp}] {message}'
+    print(line, flush=True)
+    path = log_path()
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'a') as stream:
+        stream.write(line + '\n')
+    path.chmod(0o600)
+
+
+def verification_stage(name, operation):
+    """Retry one transient socket timeout during cold dashboard startup."""
+    note('VERIFY ' + name)
+    try:
+        result = operation()
+    except TimeoutError:
+        note(name + ' timed out during cold startup; retrying once after 2 seconds')
+        time.sleep(2)
+        result = operation()
+    note('PASS ' + name)
+    return result
+
+
+@contextmanager
+def deployment_lock():
+    path = log_path().with_name('azraelctl.lock')
+    fd = os.open(path, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    try:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise DeploymentError('Another azraelctl operation holds the deployment lock') from error
+        yield
+    finally:
+        os.close(fd)
+
+
+def run(argv, *, env=None, check=True, cwd=ROOT, timeout=3600, display=True):
+    """Run and retain command output without writing credentials to logs."""
+    if isinstance(argv, str) or not argv or any(not isinstance(item, str) for item in argv):
+        raise TypeError('Commands must be nonempty argument arrays')
+    log = log_path()
+    safe_cmd = ' '.join(argv)
+    execution_argv = podman_compat_argv(argv)
+    note(f'RUN {safe_cmd}')
+    chunks = []
+    fd = os.open(log, os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'a') as stream:
+        process = subprocess.Popen(execution_argv, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, text=True, bufsize=1)
+        try:
+            for line in process.stdout:
+                chunks.append(line)
+                stream.write(line)
+                stream.flush()
+                if display:
+                    sys.stdout.write(line)
+                    sys.stdout.flush()
+            code = process.wait(timeout=timeout)
+        except BaseException:
+            process.kill()
+            process.wait()
+            raise
+        finally:
+            if process.stdout:
+                process.stdout.close()
+    output = ''.join(chunks)
+    if code and check:
+        raise DeploymentError(f'Command failed ({code}): {safe_cmd}\n{output[-1800:]}')
+    return subprocess.CompletedProcess(argv, code, output, '')
+
+
+def os_release():
+    values = {}
+    try:
+        for line in Path('/etc/os-release').read_text().splitlines():
+            if '=' in line:
+                key, value = line.split('=', 1)
+                values[key] = value.strip().strip('"')
+    except OSError:
+        pass
+    return values
+
+
+def supported_host():
+    release = os_release()
+    arch = platform.machine()
+    if release.get('ID') not in {'pop', 'ubuntu'} and 'ubuntu' not in release.get('ID_LIKE', '').split():
+        raise DeploymentError('Supported hosts are Pop!_OS or Ubuntu; detected ' + release.get('PRETTY_NAME', 'unknown OS'))
+    if arch not in {'x86_64', 'amd64'}:
+        raise DeploymentError('Supported container image architecture is x86_64; detected ' + arch)
+    return {'distribution': release.get('PRETTY_NAME', release.get('ID', 'unknown')),
+            'version': release.get('VERSION_ID'), 'architecture': arch}
+
+
+def dependency_report():
+    required = ('python3', 'git', 'podman', 'podman-compose', 'curl')
+    found = {name: shutil.which(name) for name in required}
+    optional = {name: shutil.which(name) for name in ('nvidia-smi', 'nvidia-ctk', 'loginctl', 'systemctl')}
+    return {'required': found, 'optional': optional,
+            'missing_required': [name for name, path in found.items() if not path]}
+
+
+def install_missing_dependencies(report):
+    packages = {'python3': 'python3', 'git': 'git', 'podman': 'podman',
+                'podman-compose': 'podman-compose', 'curl': 'curl'}
+    missing = [packages[name] for name in report['missing_required']]
+    if not missing:
+        return
+    if 'python3' in report['missing_required']:
+        missing.extend(['python3-venv', 'python3-pip'])
+    elif not (ROOT / '.slm-venv/bin/python').is_file():
+        venv_probe = subprocess.run([shutil.which('python3') or 'python3', '-m', 'venv', '--help'],
+                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if venv_probe.returncode:
+            missing.append('python3-venv')
+    command = ['sudo', '-n', 'apt-get', 'install', '-y', *dict.fromkeys(missing)]
+    if shutil.which('sudo') is None:
+        raise DeploymentError('Missing supported host packages: ' + ', '.join(missing) + '. Install those packages and retry.')
+    result = run(command, check=False)
+    if result.returncode:
+        raise DeploymentError('Could not install missing packages without an interactive privilege prompt. Run this targeted command, then retry: sudo apt-get install -y ' + ' '.join(dict.fromkeys(missing)))
+    left = dependency_report()['missing_required']
+    if left:
+        raise DeploymentError('Dependencies remain unavailable after installation: ' + ', '.join(left))
+
+
+def ensure_venv_dependencies():
+    python = ROOT / '.slm-venv/bin/python'
+    if not python.is_file():
+        note('Creating project Python virtual environment')
+        run([shutil.which('python3') or 'python3', '-m', 'venv', str(ROOT / '.slm-venv')])
+    check = run([str(python), '-c',
+                 'import torch, transformers, sklearn; print(torch.__version__, transformers.__version__, sklearn.__version__)'],
+                check=False, display=False)
+    if check.returncode:
+        note('Installing missing pinned Python runtime dependencies into .slm-venv')
+        run([str(python), '-m', 'pip', 'install', '--disable-pip-version-check',
+             '-r', str(ROOT / 'requirements-runtime.txt')])
+        run([str(python), '-c', 'import torch, transformers, sklearn'])
+    else:
+        note('Python venv dependencies already satisfy the runtime imports; no reinstall needed')
+
+
+def provider_env():
+    provider = provider_executable()
+    return dict(os.environ, PODMAN_COMPOSE_PROVIDER=provider)
+
+
+def recovery_backup_status():
+    if not BACKUP_ROOT.is_dir() or BACKUP_ROOT.is_symlink():
+        raise DeploymentError(f'Existing recovery backup not found at {BACKUP_ROOT}; refusing container recreation')
+    manifest_path = BACKUP_ROOT / 'backup-manifest.json'
+    manifest = json.loads(manifest_path.read_text())
+    if manifest.get('verification', {}).get('sqlite_integrity') != 'ok' or not manifest.get('verification', {}).get('snapshot_archive_reloaded'):
+        raise DeploymentError('Existing Juice Shop backup manifest lacks verified SQLite/image snapshot evidence')
+    check = run(['sha256sum', '-c', str(BACKUP_ROOT / 'SHA256SUMS')], cwd=BACKUP_ROOT,
+                display=False, timeout=300)
+    archive_sha = BACKUP_ROOT / 'legacy-project-state.tar.gz.sha256'
+    if not archive_sha.is_file() or not (BACKUP_ROOT / 'legacy-project-state.tar.gz').is_file():
+        raise DeploymentError('Legacy dataset/model/evidence archive verification is incomplete; refusing deployment')
+    run(['sha256sum', '-c', str(archive_sha)], cwd=BACKUP_ROOT, display=False)
+    run(['tar', '-tzf', str(BACKUP_ROOT / 'legacy-project-state.tar.gz')],
+        check=True, display=False, timeout=600)
+    return {'manifest': manifest, 'checksums': 'passed', 'legacy_archive': archive_sha.is_file()}
+
+
+def image_id(reference, env):
+    result = run(['podman', 'image', 'inspect', '--format', '{{.Id}}', reference],
+                 env=env, check=False, display=False)
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def current_containers(env):
+    listing = run(['podman', 'ps', '-aq', '--filter', f'label=com.docker.compose.project={PROJECT}'],
+                  env=env, check=False, display=False)
+    if listing.returncode:
+        raise DeploymentError('Could not list AZRAEL containers')
+    containers = {}
+    for identifier in (item.strip() for item in listing.stdout.splitlines() if item.strip()):
+        result = run(['podman', 'inspect', identifier], env=env, display=False)
+        item = json.loads(result.stdout)[0]
+        labels = item.get('Config', {}).get('Labels') or {}
+        service = labels.get('com.docker.compose.service') or labels.get('io.podman.compose.service')
+        if service in SERVICES:
+            containers[service] = item
+    return containers
+
+
+def compose_signature():
+    files = set(ROOT.glob('*.py')) | set(ROOT.glob('*.json')) | set(ROOT.glob('requirements*.txt'))
+    for directory in ('container', 'web', 'models-more', 'models-specialists',
+                      'models-public', 'models-domains', 'models-automotive'):
+        files.update(path for path in (ROOT / directory).rglob('*') if path.is_file())
+    files.update(ROOT / name for name in ('compose.yaml', 'compose.podman.yaml', 'compose.gpu.yaml'))
+    digest = hashlib.sha256()
+    for path in sorted(files):
+        if path.is_symlink():
+            raise DeploymentError(f'Compose source must not be a symlink: {path.relative_to(ROOT)}')
+        digest.update(path.relative_to(ROOT).as_posix().encode() + b'\0')
+        digest.update(path.read_bytes())
+    return digest.hexdigest()
+
+
+def compose_service_signatures(gpu=False):
+    """Hash each effective service's own Compose stanza so changes stay scoped."""
+    import yaml
+    compose_files = [ROOT / 'compose.yaml', ROOT / 'compose.podman.yaml']
+    if gpu:
+        generated = Path(os.environ.get('AZRAEL_GPU_COMPOSE_FILE', str(GPU_COMPOSE_FILE)))
+        compose_files.append(generated if generated.is_file() else ROOT / 'compose.gpu.yaml')
+    documents = []
+    for path in compose_files:
+        if not path.is_file():
+            continue
+        parsed = yaml.safe_load(path.read_text()) or {}
+        if not isinstance(parsed, dict):
+            raise DeploymentError(f'Invalid Compose document: {path.name}')
+        documents.append((path.name, parsed))
+    signatures = {}
+    for service in SERVICES:
+        payload = []
+        for filename, document in documents:
+            services = document.get('services') or {}
+            shared = {key: document[key] for key in ('networks', 'secrets', 'volumes') if key in document}
+            payload.append((filename, shared, services.get(service)))
+        serialized = json.dumps(payload, sort_keys=True, separators=(',', ':')).encode()
+        signatures[service] = hashlib.sha256(serialized).hexdigest()
+    return signatures
+
+
+def health_is_healthy(item):
+    state = item.get('State', {})
+    return state.get('Status') == 'running' and (state.get('Health') or {}).get('Status') == 'healthy'
+
+
+def web_lab_persistent_mounts_ready(item):
+    """Return true only when every lab data path is already backed by its stable host bind."""
+    if not item:
+        return False
+    storage = Path(os.environ.get('AZRAEL_STORAGE_ROOT', '/data/work/azrael54')).resolve()
+    configured = {
+        '/juice-shop/data': Path(os.environ.get('AZRAEL_JUICE_SHOP_DATA_ROOT', str(storage / 'juice-shop-data'))),
+        '/juice-shop/logs': Path(os.environ.get('AZRAEL_JUICE_SHOP_LOG_ROOT', str(storage / 'juice-shop-logs'))),
+        '/juice-shop/ftp': Path(os.environ.get('AZRAEL_JUICE_SHOP_FTP_ROOT', str(storage / 'juice-shop-ftp'))),
+        '/juice-shop/.well-known/csaf': Path(os.environ.get('AZRAEL_JUICE_SHOP_CSAF_ROOT', str(storage / 'juice-shop-csaf'))),
+        '/juice-shop/frontend/dist/frontend': Path(os.environ.get('AZRAEL_JUICE_SHOP_FRONTEND_ROOT', str(storage / 'juice-shop-frontend'))),
+        '/juice-shop/i18n': Path(os.environ.get('AZRAEL_JUICE_SHOP_I18N_ROOT', str(storage / 'juice-shop-i18n'))),
+        '/healthcheck.js': ROOT / 'healthcheck.js',
+        '/bin/sh': Path(os.environ.get('AZRAEL_WEB_LAB_SHELL', '/usr/bin/busybox')),
+    }
+    mounts = {mount.get('Destination'): mount for mount in (item.get('Mounts') or [])
+              if mount.get('Type') == 'bind' and mount.get('Destination')}
+    for destination, expected_source in configured.items():
+        mount = mounts.get(destination)
+        source_path = Path(mount.get('Source', '')) if mount else None
+        if not mount or not source_path or source_path.is_symlink() or not source_path.exists():
+            return False
+        if source_path.resolve(strict=True) != expected_source.resolve(strict=True):
+            return False
+        expected_rw = destination not in {'/healthcheck.js', '/bin/sh'}
+        if bool(mount.get('RW')) != expected_rw:
+            return False
+        if expected_rw and not source_path.is_dir():
+            return False
+    return True
+
+
+def needs_recreation(service, item, desired_image, signature, old_state, gpu,
+                     service_signature=None):
+    if not item:
+        return True
+    if not health_is_healthy(item):
+        return True
+    if (item.get('HostConfig', {}).get('RestartPolicy') or {}).get('Name') != 'unless-stopped':
+        return True
+    saved_service_signatures = old_state.get('service_signatures') or {}
+    if service in saved_service_signatures and saved_service_signatures[service] != service_signature:
+        return True
+    if item.get('Image') != desired_image:
+        # The Juice Shop recovery tag is intentionally refreshed during every backup.
+        # Its digest is therefore not a stable deployment signal once data is bind-mounted.
+        if service != 'web-lab' or not web_lab_persistent_mounts_ready(item):
+            return True
+    old_profile = old_state.get('profile', 'cpu')
+    if service in {'dashboard', 'frontend'} and (old_profile == 'gpu') != gpu:
+        return True
+    return False
+
+
+def container_snapshot(container_id, tag, archive, env):
+    run(['podman', 'commit', '--format', 'oci', '--pause', container_id, tag], env=env, timeout=300)
+    run(['podman', 'save', '--format', 'oci-archive', '--output', str(archive), tag], env=env, timeout=900)
+    archive.chmod(0o600)
+    hasher = hashlib.sha256()
+    with archive.open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            hasher.update(chunk)
+    digest = hasher.hexdigest()
+    run(['podman', 'load', '--input', str(archive)], env=env, timeout=900)
+    loaded = image_id(tag, env)
+    if not loaded:
+        raise DeploymentError(f'Container snapshot {tag} could not be reloaded')
+    return {'tag': tag, 'image_id': loaded, 'archive': str(archive),
+            'archive_sha256': digest, 'archive_bytes': archive.stat().st_size,
+            'reload_verification': 'passed'}
+
+
+def copy_from_snapshot(image, backup_dir, env):
+    helper = run(['podman', 'create', '--network', 'none', '--entrypoint', '/bin/sh', image],
+                 env=env).stdout.strip().splitlines()[-1]
+    try:
+        data = backup_dir / 'important-files/juice-shop-data'
+        logs = backup_dir / 'important-files/juice-shop-logs'
+        ftp = backup_dir / 'important-files/juice-shop-ftp'
+        csaf = backup_dir / 'important-files/juice-shop-csaf'
+        data.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        run(['podman', 'cp', f'{helper}:/juice-shop/data', str(data)], env=env)
+        run(['podman', 'cp', f'{helper}:/juice-shop/logs', str(logs)], env=env)
+        run(['podman', 'cp', f'{helper}:/juice-shop/ftp', str(ftp)], env=env)
+        run(['podman', 'cp', f'{helper}:/juice-shop/.well-known/csaf', str(csaf)], env=env)
+        db = data / 'juiceshop.sqlite'
+        if not db.is_file():
+            raise DeploymentError('Snapshot does not contain /juice-shop/data/juiceshop.sqlite')
+        with sqlite3.connect(f'file:{db}?mode=ro', uri=True) as connection:
+            integrity = connection.execute('PRAGMA quick_check').fetchone()[0]
+            tables = connection.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
+        if integrity != 'ok' or tables < 1:
+            raise DeploymentError(f'Snapshot SQLite verification failed: quick_check={integrity}, tables={tables}')
+        for directory in (data, logs, ftp, csaf):
+            for current, dirs, files in os.walk(directory):
+                Path(current).chmod(0o700)
+                for name in dirs:
+                    (Path(current) / name).chmod(0o700)
+                for name in files:
+                    (Path(current) / name).chmod(0o600)
+        return {'data': data, 'logs': logs, 'ftp': ftp, 'csaf': csaf, 'database': db,
+                'sqlite_integrity': integrity, 'sqlite_tables': tables,
+                'database_sha256': hashlib.sha256(db.read_bytes()).hexdigest(),
+                'log_file_count': sum(1 for path in logs.rglob('*') if path.is_file()),
+                'ftp_file_count': sum(1 for path in ftp.rglob('*') if path.is_file()),
+                'csaf_file_count': sum(1 for path in csaf.rglob('*') if path.is_file())}
+    finally:
+        run(['podman', 'rm', helper], env=env, check=False, display=False)
+
+
+def copy_from_container(container_id, backup_dir, env):
+    """Copy the stopped container's effective paths, including any bind-mounted data."""
+    data = backup_dir / 'important-files/juice-shop-data'
+    logs = backup_dir / 'important-files/juice-shop-logs'
+    ftp = backup_dir / 'important-files/juice-shop-ftp'
+    csaf = backup_dir / 'important-files/juice-shop-csaf'
+    frontend = backup_dir / 'important-files/juice-shop-frontend'
+    i18n = backup_dir / 'important-files/juice-shop-i18n'
+    data.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    for source, destination in (
+        ('/juice-shop/data',data),('/juice-shop/logs',logs),('/juice-shop/ftp',ftp),
+        ('/juice-shop/.well-known/csaf',csaf),('/juice-shop/frontend/dist/frontend',frontend),
+        ('/juice-shop/i18n',i18n),
+    ):
+        if destination.exists() or destination.is_symlink():
+            raise DeploymentError('Refusing to overwrite a preserved container copy: '+str(destination))
+        stage=Path(tempfile.mkdtemp(prefix='.container-copy-',dir=data.parent))
+        run(['podman','cp',f'{container_id}:{source}',str(stage)],env=env)
+        nested=stage/Path(source).name
+        copied=nested if nested.is_dir() else stage
+        tree_hashes(copied)
+        os.replace(copied,destination)
+        if copied!=stage:stage.rmdir()
+    db = data / 'juiceshop.sqlite'
+    if not db.is_file():
+        raise DeploymentError('Stopped Juice Shop container does not expose /juice-shop/data/juiceshop.sqlite')
+    with sqlite3.connect(f'file:{db}?mode=ro', uri=True) as connection:
+        integrity = connection.execute('PRAGMA quick_check').fetchone()[0]
+        tables = connection.execute("SELECT count(*) FROM sqlite_master WHERE type='table'").fetchone()[0]
+    if integrity != 'ok' or tables < 1:
+        raise DeploymentError(f'Stopped-container SQLite verification failed: quick_check={integrity}, tables={tables}')
+    for directory in (data, logs, ftp, csaf, frontend, i18n):
+        for current, dirs, files in os.walk(directory):
+            Path(current).chmod(0o700)
+            for name in dirs:
+                (Path(current) / name).chmod(0o700)
+            for name in files:
+                (Path(current) / name).chmod(0o600)
+    return {'data': data, 'logs': logs, 'ftp': ftp, 'csaf': csaf, 'frontend':frontend, 'i18n':i18n, 'database': db,
+            'sqlite_integrity': integrity, 'sqlite_tables': tables,
+            'database_sha256': hashlib.sha256(db.read_bytes()).hexdigest(),
+            'log_file_count': sum(1 for path in logs.rglob('*') if path.is_file()),
+            'ftp_file_count': sum(1 for path in ftp.rglob('*') if path.is_file()),
+            'csaf_file_count': sum(1 for path in csaf.rglob('*') if path.is_file())}
+
+
+def merge_juice_shop_trees(seed, current, destination):
+    """Create a new backup tree, retaining live files over matching image assets."""
+    seed,current,destination=Path(seed),Path(current),Path(destination)
+    if destination.exists() or destination.is_symlink():
+        raise DeploymentError('Refusing to overwrite an existing merged tree')
+    if not seed.is_dir() or not current.is_dir() or seed.is_symlink() or current.is_symlink():
+        raise DeploymentError('Merge sources must be regular directories')
+    tree_hashes(seed);tree_hashes(current)
+    shutil.copytree(seed,destination)
+    shutil.copytree(current,destination,dirs_exist_ok=True)
+    return destination
+
+
+def tree_hashes(root):
+    root = Path(root)
+    result = {}
+    for path in sorted(root.rglob('*')):
+        relative = path.relative_to(root).as_posix()
+        if path.is_symlink():
+            raise DeploymentError(f'Refusing a symlink in protected Juice Shop data: {path}')
+        if path.is_dir():
+            result[relative] = 'directory'
+        elif path.is_file():
+            digest = hashlib.sha256()
+            with path.open('rb') as stream:
+                for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                    digest.update(chunk)
+            result[relative] = digest.hexdigest()
+        else:
+            raise DeploymentError(f'Unsupported entry in protected Juice Shop data: {path}')
+    return result
+
+
+def make_private_tree(root):
+    root = Path(root)
+    root.chmod(0o700)
+    for path in root.rglob('*'):
+        path.chmod(0o700 if path.is_dir() else 0o600)
+
+
+def backup_active_juice_shop(source, target, backup_dir):
+    """Verify a backup of existing state before replacing it with the stopped-container copy."""
+    source = Path(source)
+    target = Path(target)
+    if target.exists() and any(target.iterdir()):
+        backup = backup_dir / 'important-files' / (target.name + '-existing')
+        shutil.copytree(target, backup, dirs_exist_ok=False)
+        make_private_tree(backup)
+        prior_hashes = tree_hashes(target)
+        if tree_hashes(backup) != prior_hashes:
+            raise DeploymentError(f'Existing Juice Shop data backup did not verify: {backup}')
+        existing_db = target / 'juiceshop.sqlite'
+        if existing_db.is_file():
+            with sqlite3.connect(f'file:{backup / "juiceshop.sqlite"}?mode=ro', uri=True) as connection:
+                integrity = connection.execute('PRAGMA quick_check').fetchone()[0]
+            if integrity != 'ok':
+                raise DeploymentError(f'Existing Juice Shop SQLite backup failed verification: {integrity}')
+        source_hashes = tree_hashes(source)
+        if prior_hashes == source_hashes:
+            return {'path': str(target), 'preserved_existing': True,
+                    'backup_copy': str(backup), 'file_count': sum(1 for p in target.rglob('*') if p.is_file()),
+                    'content_matches_final_snapshot': True, 'backup_verification': 'passed'}
+
+        stage = target.with_name(target.name + '.azrael54-staging')
+        previous = target.with_name(target.name + f'.azrael54-previous-{time.time_ns()}')
+        if stage.exists() or previous.exists():
+            raise DeploymentError(f'Juice Shop migration staging path already exists beside {target}')
+        shutil.copytree(source, stage)
+        make_private_tree(stage)
+        if tree_hashes(stage) != source_hashes:
+            shutil.rmtree(stage)
+            raise DeploymentError(f'New Juice Shop data staging copy did not verify: {stage}')
+        moved_old = False
+        try:
+            target.rename(previous)
+            moved_old = True
+            stage.rename(target)
+            if tree_hashes(target) != source_hashes:
+                raise DeploymentError(f'Installed Juice Shop data failed post-migration verification: {target}')
+        except BaseException:
+            if target.exists():
+                shutil.rmtree(target)
+            if moved_old and previous.exists():
+                previous.rename(target)
+            raise
+        shutil.rmtree(previous)
+        return {'path': str(target), 'preserved_existing': True, 'backup_copy': str(backup),
+                'file_count': sum(1 for p in target.rglob('*') if p.is_file()),
+                'content_matches_final_snapshot': True, 'prior_state_backup_verification': 'passed',
+                'prior_state_sha256_manifest': prior_hashes}
+    target.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if any(target.iterdir()):
+        raise DeploymentError(f'Persistent Juice Shop destination became nonempty during migration: {target}')
+    shutil.copytree(source, target, dirs_exist_ok=True)
+    make_private_tree(target)
+    if tree_hashes(target) != tree_hashes(source):
+        raise DeploymentError(f'New Juice Shop persistent copy did not verify: {target}')
+    return {'path': str(target), 'preserved_existing': False,
+            'file_count': sum(1 for p in target.rglob('*') if p.is_file())}
+
+
+def save_json(path, value):
+    path = Path(path)
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.tmp')
+    fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'w') as stream:
+        json.dump(value, stream, indent=2, sort_keys=True)
+        stream.write('\n')
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, path)
+    path.chmod(0o600)
+
+
+def snapshot_and_migrate_web_lab(item, backup_dir, env):
+    container_id = item['Id']
+    status = item.get('State', {}).get('Status')
+    now = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    detail = backup_dir / 'web-lab-latest'
+    detail.mkdir(mode=0o700)
+    save_json(detail / 'container-inspect.json', item)
+    diff = run(['podman', 'diff', container_id], env=env, display=False)
+    (detail / 'container-diff.txt').write_text(diff.stdout)
+    (detail / 'container-diff.txt').chmod(0o600)
+    log_result = run(['podman', 'logs', '--timestamps', container_id], env=env, check=False, display=False)
+    (detail / 'container-logs.txt').write_text(log_result.stdout[-4_000_000:])
+    (detail / 'container-logs.txt').chmod(0o600)
+
+    first = container_snapshot(container_id, f'localhost/azrael54-web-lab-preserved:pre-stop-{now}',
+                               detail / 'web-lab-pre-stop.oci.tar', env)
+    pre_stop = copy_from_snapshot(first['tag'], detail / 'pre-stop-files', env)
+    if status == 'running':
+        run(['podman', 'stop', '--time', '15', container_id], env=env, timeout=60)
+    try:
+        stopped_item = json.loads(run(['podman', 'inspect', container_id], env=env, display=False).stdout)[0]
+        if stopped_item.get('State', {}).get('Status') != 'exited':
+            raise DeploymentError('Juice Shop did not reach a stopped state for its final data snapshot')
+        final = container_snapshot(container_id, f'localhost/azrael54-web-lab-preserved:deployment-{now}',
+                                   detail / 'web-lab-final.oci.tar', env)
+        final_files = copy_from_container(container_id, detail / 'final-files', env)
+        if final_files['sqlite_integrity'] != 'ok':
+            raise DeploymentError('Final stopped Juice Shop database failed integrity verification')
+        active_root = Path(os.environ.get('AZRAEL_STORAGE_ROOT', '/data/work/azrael54'))
+        data_path = active_root / 'juice-shop-data'
+        logs_path = active_root / 'juice-shop-logs'
+        ftp_path = active_root / 'juice-shop-ftp'
+        csaf_path = active_root / 'juice-shop-csaf'
+        data_preservation = backup_active_juice_shop(final_files['data'], data_path, detail)
+        log_preservation = backup_active_juice_shop(final_files['logs'], logs_path, detail)
+        ftp_preservation = backup_active_juice_shop(final_files['ftp'], ftp_path, detail)
+        csaf_preservation = backup_active_juice_shop(final_files['csaf'], csaf_path, detail)
+        active_db = data_path / 'juiceshop.sqlite'
+        if not active_db.is_file():
+            raise DeploymentError('Persistent Juice Shop data has no SQLite database after migration')
+        with sqlite3.connect(f'file:{active_db}?mode=ro', uri=True) as connection:
+            active_integrity = connection.execute('PRAGMA quick_check').fetchone()[0]
+        if active_integrity != 'ok':
+            raise DeploymentError('Persistent Juice Shop database failed post-migration integrity check')
+        run(['podman', 'tag', final['tag'], 'localhost/azrael54-web-lab-preserved:latest'], env=env)
+        manifest = {'source_container_id': container_id, 'source_status_before': status,
+                    'writable_layer_diff': diff.stdout, 'pre_stop_snapshot': first,
+                    'pre_stop_sqlite_sha256': pre_stop['database_sha256'], 'final_snapshot': final,
+                    'final_sqlite_sha256': final_files['database_sha256'],
+                    'sqlite_integrity': active_integrity, 'sqlite_tables': final_files['sqlite_tables'],
+                    'active_data': data_preservation, 'active_logs': log_preservation,
+                    'active_ftp': ftp_preservation, 'active_csaf': csaf_preservation,
+                    'active_image': 'localhost/azrael54-web-lab-preserved:latest',
+                    'migration_reversible_from': str(detail / 'web-lab-final.oci.tar'),
+                    'status': 'verified'}
+        save_json(detail / 'migration-manifest.json', manifest)
+        return manifest
+    except BaseException:
+        current = json.loads(run(['podman', 'inspect', container_id], env=env, check=False, display=False).stdout or '[]')
+        if current and current[0].get('State', {}).get('Status') != 'running':
+            run(['podman', 'start', container_id], env=env, check=False, display=False)
+        raise
+
+
+def restore_web_lab_after_failure(item, env):
+    """Recover the old container or the verified snapshot-backed service after a failed update."""
+    original_id = item.get('Id')
+    inspected = run(['podman', 'inspect', original_id], env=env, check=False, display=False)
+    if inspected.returncode == 0:
+        current = json.loads(inspected.stdout)[0]
+        if current.get('State', {}).get('Status') != 'running':
+            started = run(['podman', 'start', original_id], env=env, check=False, display=False)
+            if started.returncode == 0:
+                return {'status': 'restored_original_container', 'container_id': original_id}
+    try:
+        snapshot = 'localhost/azrael54-web-lab-preserved:latest'
+        if image_id(snapshot, env):
+            port = int(env.get('AZRAEL_PORT', os.environ.get('AZRAEL_PORT', '8765')))
+            env = write_compose_env('cpu', web_image=snapshot, port=port)
+            env.update({'AZRAEL_WEB_LAB_IMAGE': snapshot,
+                        'AZRAEL_STORAGE_ROOT': str(Path('/data/work/azrael54')),
+                        'PODMAN_COMPOSE_PROVIDER': provider_executable()})
+        run_compose_up('web-lab', gpu=False, force=False, env=env)
+        import setup_lab
+        setup_lab.wait_for_services_healthy('podman', ['web-lab'], timeout=120)
+        return {'status': 'restored_from_verified_snapshot_and_persistent_data',
+                'image': env.get('AZRAEL_WEB_LAB_IMAGE')}
+    except Exception as error:
+        return {'status': 'recovery_required', 'snapshot_image': 'localhost/azrael54-web-lab-preserved:latest',
+                'error': f'{type(error).__name__}: {str(error)[:800]}'}
+
+
+def ensure_web_lab_shell():
+    source=Path(os.environ.get('AZRAEL_WEB_LAB_SHELL') or shutil.which('busybox') or '/usr/bin/busybox').resolve()
+    if not source.is_file() or not os.access(source,os.X_OK):
+        raise DeploymentError('A working BusyBox executable is required for the read-only web-lab shell mount')
+    directory=RUNTIME/'compat'
+    directory.mkdir(mode=0o700,parents=True,exist_ok=True)
+    target=directory/'busybox'
+    if target.is_symlink() or (target.exists() and target.stat().st_uid!=os.getuid()):
+        raise DeploymentError('Web-lab compatibility shell must be owned by the project user')
+    if source!=target.resolve():
+        if not target.exists():shutil.copyfile(source,target)
+        elif hashlib.sha256(source.read_bytes()).digest()!=hashlib.sha256(target.read_bytes()).digest():
+            raise DeploymentError('Existing compatibility shell differs; preserve it before an explicit replacement')
+    target.chmod(0o555)
+    return target
+
+
+def write_compose_env(profile, gpu_devices=None, default_gpu=None, web_image=None, port=8765):
+    storage = Path(os.environ.get('AZRAEL_STORAGE_ROOT', '/data/work/azrael54'))
+    values = {'AZRAEL_HOME':str(ROOT), 'LAB_UID': str(os.getuid()), 'LAB_GID': str(os.getgid()),
+              'AZRAEL_PORT': str(port), 'AZRAEL_STORAGE_ROOT': str(storage),
+              'AZRAEL_JUICE_SHOP_DATA_ROOT': str(storage / 'juice-shop-data'),
+              'AZRAEL_JUICE_SHOP_LOG_ROOT': str(storage / 'juice-shop-logs'),
+              'AZRAEL_JUICE_SHOP_FTP_ROOT': str(storage / 'juice-shop-ftp'),
+              'AZRAEL_JUICE_SHOP_CSAF_ROOT': str(storage / 'juice-shop-csaf'),
+              'AZRAEL_JUICE_SHOP_FRONTEND_ROOT': str(storage / 'juice-shop-frontend'),
+              'AZRAEL_JUICE_SHOP_I18N_ROOT': str(storage / 'juice-shop-i18n'),
+              'AZRAEL_WEB_LAB_SHELL': str(ensure_web_lab_shell()),
+              'AZRAEL_WEB_LAB_IMAGE': web_image or os.environ.get('AZRAEL_WEB_LAB_IMAGE', 'docker.io/bkimminich/juice-shop:latest'),
+              'AZRAEL_GPU_ENABLED': 'true' if profile == 'gpu' else 'false'}
+    if profile == 'gpu':
+        if not gpu_devices or not default_gpu:
+            raise DeploymentError('GPU compose environment needs at least one verified UUID')
+        ordered = [default_gpu] + [item for item in gpu_devices if item['uuid'] != default_gpu['uuid']]
+        values.update({'AZRAEL_GPU_UUID': default_gpu['uuid'],
+                       'AZRAEL_GPU_DEVICE': 'all',
+                       'AZRAEL_GPU_VISIBLE_DEVICES': ','.join(device['uuid'] for device in ordered),
+                       'AZRAEL_GPU_MEMORY_FRACTION': os.environ.get('AZRAEL_GPU_MEMORY_FRACTION', '0.85'),
+                       'AZRAEL_GPU_NAME': default_gpu['name'],
+                       'AZRAEL_TORCH_INDEX_URL': 'https://download.pytorch.org/whl/cu128',
+                       'AZRAEL_GPU_COMPOSE_FILE': str(GPU_COMPOSE_FILE)})
+    else:
+        values.update({'AZRAEL_TORCH_INDEX_URL': 'https://download.pytorch.org/whl/cpu'})
+    RUNTIME.mkdir(mode=0o700, parents=True, exist_ok=True)
+    lines = []
+    for key, value in values.items():
+        if '\n' in value or '\r' in value:
+            raise DeploymentError(f'Invalid newline in {key}')
+        lines.append(f'{key}={value}')
+    temporary = ENV_FILE.with_suffix('.tmp')
+    temporary.write_text('\n'.join(lines) + '\n')
+    temporary.chmod(0o600)
+    os.replace(temporary, ENV_FILE)
+    ENV_FILE.chmod(0o600)
+    os.environ.update(values)
+    if profile == 'cpu':
+        for key in ('AZRAEL_GPU_COMPOSE_FILE', 'AZRAEL_GPU_UUID', 'AZRAEL_GPU_DEVICE',
+                    'AZRAEL_GPU_VISIBLE_DEVICES', 'CUDA_VISIBLE_DEVICES', 'AZRAEL_GPU_NAME'):
+            os.environ.pop(key, None)
+    return values
+
+
+def generate_gpu_compose(devices, default_gpu):
+    if not devices:
+        raise DeploymentError('Cannot generate GPU Compose override without verified GPUs')
+    devices = [default_gpu] + [item for item in devices if item['uuid'] != default_gpu['uuid']]
+    uuids = ','.join(device['uuid'] for device in devices)
+    lines = [
+        'services:', '  dashboard:', '    build:', '      args:',
+        '        TORCH_INDEX_URL: https://download.pytorch.org/whl/cu128',
+        '    devices:',
+    ]
+    # Podman 4.9/NVIDIA CDI runs a hook for every selector. Passing one
+    # aggregate selector avoids duplicate-hook collisions; CUDA visibility and
+    # workload assignment remain pinned to the discovered UUIDs below.
+    lines.append('      - nvidia.com/gpu=all')
+    lines += ['    environment:', '      AZRAEL_GPU_ENABLED: "true"',
+              f'      AZRAEL_GPU_NAME: "{default_gpu["name"]}"',
+              f'      AZRAEL_GPU_UUID: "{default_gpu["uuid"]}"',
+              f'      AZRAEL_GPU_VISIBLE_DEVICES: "{uuids}"',
+              f'      CUDA_VISIBLE_DEVICES: "{uuids}"',
+              f'      AZRAEL_GPU_MEMORY_FRACTION: "{os.environ.get("AZRAEL_GPU_MEMORY_FRACTION", "0.85")}"',
+              '      LD_LIBRARY_PATH: "/usr/lib/x86_64-linux-gnu"',
+              '      AZRAEL_GPU_REQUIRED: "false"']
+    GPU_COMPOSE_FILE.write_text('\n'.join(lines) + '\n')
+    GPU_COMPOSE_FILE.chmod(0o600)
+
+
+def compose_prefix(gpu=False):
+    provider = provider_env()['PODMAN_COMPOSE_PROVIDER']
+    command = [shutil.which('podman') or 'podman', 'compose', '--file', str(ROOT / 'compose.yaml'),
+               '--file', str(ROOT / 'compose.podman.yaml')]
+    if gpu:
+        gpu_file = os.environ.get('AZRAEL_GPU_COMPOSE_FILE')
+        command += ['--file', gpu_file or str(ROOT / 'compose.gpu.yaml')]
+    command += ['--project-name', PROJECT]
+    return command
+
+
+def compose_environment(port=8765, gpu=False):
+    import setup_lab
+    os.environ.update(read_compose_env())
+    env = setup_lab._env(port, gpu)
+    env.update(read_compose_env())
+    env['PODMAN_COMPOSE_PROVIDER'] = provider_executable()
+    return env
+
+
+def read_compose_env():
+    values = {}
+    if not ENV_FILE.is_file():
+        return values
+    if ENV_FILE.is_symlink() or ENV_FILE.stat().st_uid != os.getuid() or ENV_FILE.stat().st_mode & 0o077:
+        raise DeploymentError('Runtime Compose environment file must be owner-only and owned by the project user')
+    for line in ENV_FILE.read_text().splitlines():
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        if re.fullmatch(r'[A-Z][A-Z0-9_]*', key):
+            values[key] = value
+    return values
+
+
+def run_compose_up(service, *, gpu=False, force=False, env=None):
+    command = compose_prefix(gpu) + ['up', '-d', '--no-deps',
+                                     '--force-recreate' if force else '--no-recreate', service]
+    return run(command, env=env, timeout=300)
+
+
+def service_manager_start():
+    """Recover only missing, stopped, or unhealthy AZRAEL containers after boot."""
+    import setup_lab
+    state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+    gpu = state.get('profile') == 'gpu'
+    if gpu:
+        ensure_cdi_compat_spec()
+    env = compose_environment(gpu=gpu)
+    if gpu:
+        env['AZRAEL_GPU_COMPOSE_FILE'] = str(GPU_COMPOSE_FILE)
+    for service in START_ORDER:
+        current = current_containers(env).get(service)
+        if current is None:
+            run_compose_up(service, gpu=gpu, force=False, env=env)
+        elif current.get('State', {}).get('Status') != 'running':
+            run(['podman', 'start', current['Id']], env=env, timeout=300)
+        elif (current.get('State', {}).get('Health') or {}).get('Status') == 'unhealthy':
+            run(['podman', 'restart', '--time', '10', current['Id']], env=env, timeout=300)
+        setup_lab.wait_for_services_healthy('podman', [service], timeout=300 if service == 'dashboard' else 180)
+
+
+def service_manager_stop():
+    """Gracefully stop the AZRAEL Compose services while preserving their data."""
+    state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+    gpu = state.get('profile') == 'gpu'
+    env = compose_environment(gpu=gpu)
+    if gpu:
+        env['AZRAEL_GPU_COMPOSE_FILE'] = str(GPU_COMPOSE_FILE)
+    run(compose_prefix(gpu) + ['stop'], env=env, timeout=300)
+    note('AZRAEL-54 services stopped through the rootless lifecycle manager; persistent state retained')
+
+
+def boot_service_manager(profile, port):
+    SYSTEMD_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if UNIT_FILE.exists() and 'AZRAEL-54 managed rootless stack' not in UNIT_FILE.read_text(errors='replace'):
+        raise DeploymentError(f'Refusing to overwrite unrelated user service {UNIT_FILE}')
+    gpu = profile == 'gpu'
+    files = compose_prefix(gpu)
+    env_path = ENV_FILE
+    content = f'''# AZRAEL-54 managed rootless stack
+[Unit]
+Description=AZRAEL-54 managed rootless stack
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory={ROOT}
+EnvironmentFile={env_path}
+Environment=PODMAN_COMPOSE_PROVIDER={provider_executable()}
+ExecStart={shlex.quote(str(ROOT / 'azraelctl'))} _service-start
+ExecStop={shlex.quote(str(ROOT / 'azraelctl'))} _service-stop
+TimeoutStartSec=0
+TimeoutStopSec=360
+KillMode=process
+
+[Install]
+WantedBy=default.target
+'''
+    temporary = UNIT_FILE.with_suffix('.tmp')
+    temporary.write_text(content)
+    temporary.chmod(0o600)
+    os.replace(temporary, UNIT_FILE)
+    run(['systemctl', '--user', 'daemon-reload'], timeout=60)
+    run(['systemctl', '--user', 'enable', '--now', 'azrael54.service'], timeout=300)
+    lingering = None
+    if shutil.which('loginctl'):
+        shown = run(['loginctl', 'show-user', str(os.getuid()), '-p', 'Linger', '--value'],
+                    check=False, display=False, timeout=20)
+        lingering = shown.stdout.strip().lower() == 'yes'
+        if not lingering:
+            enabled = run(['loginctl', 'enable-linger', str(os.getuid())], check=False,
+                          display=False, timeout=20)
+            if enabled.returncode == 0:
+                check = run(['loginctl', 'show-user', str(os.getuid()), '-p', 'Linger', '--value'],
+                            check=False, display=False, timeout=20)
+                lingering = check.stdout.strip().lower() == 'yes'
+    unit = run(['systemctl', '--user', 'is-active', 'azrael54.service'],
+               check=False, display=False, timeout=20)
+    if unit.stdout.strip() != 'active':
+        raise DeploymentError('Rootless systemd lifecycle unit did not become active')
+    return {'unit': str(UNIT_FILE), 'unit_active': True, 'unit_enabled': True,
+            'linger_enabled': lingering, 'reboot_persistence': 'verified' if lingering else 'pending_linger_privilege'}
+
+
+def persist_state(value):
+    value['recorded_at'] = datetime.now(timezone.utc).isoformat()
+    save_json(STATE, value)
+
+
+def host_diagnostics():
+    host = supported_host()
+    dependencies = dependency_report()
+    podman = None
+    gpu = None
+    try:
+        import setup_lab
+        podman = setup_lab.runtime_probe('podman') if not dependencies['missing_required'] else None
+        gpu = setup_lab.gpu_status()
+    except Exception as error:
+        gpu = {'status': 'unavailable', 'reason': f'{type(error).__name__}: {str(error)[:600]}'}
+    details = {'host': host, 'dependencies': dependencies, 'podman': podman, 'gpu': gpu,
+               'rootless_user': os.getuid() != 0,
+               'backup_directory': str(BACKUP_ROOT),
+               'restart_manager': {'user_systemd': bool(shutil.which('systemctl')),
+                                   'linger': None}}
+    if shutil.which('loginctl'):
+        linger = run(['loginctl', 'show-user', str(os.getuid()), '-p', 'Linger', '--value'],
+                     check=False, display=False, timeout=15)
+        details['restart_manager']['linger'] = linger.stdout.strip() == 'yes'
+    return details
+
+
+def doctor():
+    report = host_diagnostics()
+    note(json.dumps(report, indent=2, sort_keys=True))
+    if report['dependencies']['missing_required']:
+        raise DeploymentError('Missing dependencies: ' + ', '.join(report['dependencies']['missing_required']))
+    if os.getuid() == 0:
+        raise DeploymentError('AZRAEL-54 must be managed as an ordinary rootless Podman user')
+    return report
+
+
+def audit_recreation(service, item, env):
+    if not item:
+        return {'service': service, 'status': 'new-container'}
+    started = item.get('State', {}).get('StartedAt')
+    diff = run(['podman', 'diff', item['Id']], env=env, display=False)
+    if diff.returncode:
+        raise DeploymentError(f'Could not inspect writable layer for {service}; refusing recreation')
+    import writable_layer_audit
+    audit = writable_layer_audit.audit_diff(started, diff.stdout)
+    verified_mounts = []
+    verified_bind_mounts = []
+    if audit['status'] == 'blocked':
+        entries = set(audit['unexpected_entries'])
+        if entries and entries <= {'A /healthcheck.py'}:
+            verified_mounts = backup_readonly_healthcheck_bind(service, item)
+            audit['unexpected_entries'] = []
+            audit['ignored_entries'].extend(['verified read-only bind A /healthcheck.py'])
+            audit['status'] = 'clean'
+    if audit['status'] == 'blocked':
+        mount_entries = list(audit['unexpected_entries'])
+        verified_bind_mounts = verify_bind_mountpoint_diff(service, item, mount_entries)
+        if verified_bind_mounts:
+            audit['unexpected_entries'] = []
+            audit['ignored_entries'].extend('verified bind mountpoint ' + entry for entry in mount_entries)
+            audit['status'] = 'clean'
+    if audit['status'] == 'blocked' and service != 'web-lab':
+        raise DeploymentError(f'{service} has unbacked writable-layer changes; refusing recreation: ' +
+                              ', '.join(audit['unexpected_entries'][:20]))
+    if audit['status'] == 'blocked' and service == 'web-lab':
+        return {'service': service, 'status': 'changes-will-be-snapshotted-and-migrated',
+                'changed_paths': audit['unexpected_entries']}
+    return {'service': service, 'status': audit['status'],
+            'ignored_entries': audit.get('ignored_entries', []),
+            'verified_readonly_mount_backups': verified_mounts,
+            'verified_bind_mountpoint_sources': verified_bind_mounts}
+
+
+def verify_bind_mountpoint_diff(service, item, entries):
+    """Recognize only Podman diff entries that are mount targets or their parent directories."""
+    mounts = item.get('Mounts') or []
+    candidates = []
+    for mount in mounts:
+        if mount.get('Type') != 'bind' or not mount.get('Source') or not mount.get('Destination'):
+            continue
+        raw_source = Path(mount['Source'])
+        if raw_source.is_symlink() or not raw_source.exists():
+            continue
+        source = raw_source.resolve(strict=True)
+        destination = os.path.normpath(mount['Destination'])
+        project_root = ROOT.resolve()
+        storage_root = Path(os.environ.get('AZRAEL_STORAGE_ROOT', '/data/work/azrael54')).resolve()
+        if not (source == project_root or project_root in source.parents or
+                source == storage_root or storage_root in source.parents):
+            continue
+        candidates.append({'source': str(source), 'destination': destination,
+                           'read_only': mount.get('RW') is False,
+                           'source_kind': 'directory' if source.is_dir() else 'file'})
+    parsed = []
+    verified_destinations = set()
+    for entry in entries:
+        parts = entry.split(' ', 1)
+        if len(parts) != 2 or parts[0] not in {'A', 'C'}:
+            return []
+        status, raw_path = parts
+        path = os.path.normpath(raw_path)
+        exact = [mount for mount in candidates if mount['destination'] == path]
+        descendants = [mount for mount in candidates
+                       if mount['destination'].startswith(path.rstrip('/') + '/')]
+        if exact:
+            verified_destinations.update(mount['destination'] for mount in exact)
+            parsed.append({'entry': entry, 'kind': 'bind-mount-target'})
+        elif descendants and status == 'C':
+            parsed.append({'entry': entry, 'kind': 'mount-parent-directory'})
+        else:
+            return []
+    if not parsed or not verified_destinations:
+        return []
+    referenced = [mount for mount in candidates if mount['destination'] in verified_destinations]
+    backup_dir = make_backup_directory()
+    save_json(backup_dir / 'mountpoint-audit.json', {
+        'service': service, 'container_id': item.get('Id'),
+        'status': 'verified_mountpoints_only', 'diff_entries': parsed,
+        'bind_mounts': referenced,
+        'source_persistence': 'verified host bind sources remain outside the container layer'})
+    return [{'backup': str(backup_dir / 'mountpoint-audit.json'), **mount}
+            for mount in referenced]
+
+
+def backup_readonly_healthcheck_bind(service, item):
+    """Back up only the exact project healthcheck source proven read-only by inspect."""
+    project = ROOT.resolve()
+    matches = [mount for mount in item.get('Mounts', [])
+               if mount.get('Destination') == '/healthcheck.py']
+    if len(matches) != 1:
+        raise DeploymentError(f'{service} reports A /healthcheck.py but does not have one exact bind mount')
+    mount = matches[0]
+    source = Path(mount.get('Source', '')).resolve(strict=True)
+    if (mount.get('Type') != 'bind' or mount.get('RW') is not False or
+            source != project / 'healthcheck.py' or not source.is_file()):
+        raise DeploymentError(f'{service} /healthcheck.py is not the expected read-only project bind mount')
+    backup_dir = make_backup_directory()
+    destination = backup_dir / 'important-files' / service / 'healthcheck.py'
+    destination.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    shutil.copyfile(source, destination)
+    destination.chmod(0o600)
+    source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+    backup_hash = hashlib.sha256(destination.read_bytes()).hexdigest()
+    if source_hash != backup_hash:
+        raise DeploymentError(f'{service} read-only healthcheck backup failed verification')
+    save_json(backup_dir / 'readonly-bind-manifest.json', {
+        'service': service, 'container_destination': '/healthcheck.py',
+        'source': str(source), 'source_sha256': source_hash,
+        'backup': str(destination), 'backup_sha256': backup_hash,
+        'mount_type': mount['Type'], 'read_only': True, 'verification': 'passed'})
+    return [{'source': str(source), 'backup': str(destination), 'sha256': source_hash,
+             'verification': 'passed'}]
+
+
+def make_backup_directory():
+    timestamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    path = BACKUP_ROOT / f'azraelctl-{timestamp}-{time.time_ns()}'
+    path.mkdir(mode=0o700, parents=True, exist_ok=False)
+    path.chmod(0o700)
+    return path
+
+
+def verify_api_inference(port, device, require_cuda=False):
+    import setup_lab
+    base = f'http://127.0.0.1:{port}'
+    host = f'127.0.0.1:{port}'
+    headers = {'Host': host, 'Origin': 'http://' + host,
+               'X-Lab-Request': '1', 'Content-Type': 'application/json'}
+    _, login_headers, _ = setup_lab._http(base + '/api/login', 'POST',
+        json.dumps({'token': (ROOT / '.runtime/admin-token').read_text().strip()}).encode(), headers, timeout=10)
+    cookie = login_headers.get('Set-Cookie', '').split(';', 1)[0]
+    if not cookie.startswith('lab_session='):
+        raise DeploymentError('Authenticated inference verification could not establish an admin session')
+    headers['Cookie'] = cookie
+    status, _, body = setup_lab._http(base + '/api/ops/inference', 'POST', json.dumps({
+        'prompt': 'Reply with the single word READY.', 'device': device,
+        'model': 'Qwen/Qwen2.5-Coder-1.5B-Instruct'}).encode(), headers, timeout=300)
+    if status != 200:
+        raise DeploymentError(f'Inference API returned HTTP {status}')
+    result = json.loads(body)
+    if not isinstance(result.get('text'), str) or not result['text'].strip():
+        raise DeploymentError('Inference API returned an empty model response')
+    if require_cuda and (not str(result.get('device', '')).startswith('cuda') or not result.get('gpu_memory_allocated_bytes')):
+        raise DeploymentError('Inference API response did not prove CUDA model allocation')
+    if device == 'cpu' and result.get('device') != 'cpu':
+        raise DeploymentError('Explicit CPU fallback request did not execute on CPU')
+    return {key: result.get(key) for key in ('model', 'device', 'device_name',
+            'gpu_memory_allocated_bytes', 'generated_tokens', 'latency_ms', 'selected_device', 'gpu_fallback_reason')}
+
+
+def restore_cpu_dashboard(port, web_ref, gpu_environment, failure):
+    """Roll back only the dashboard/proxy pair to the verified CPU image and profile."""
+    fallback = 'localhost/azrael54-dashboard:cpu-fallback'
+    if not image_id(fallback, gpu_environment):
+        raise DeploymentError('GPU deployment failed and the verified CPU rollback image is unavailable')
+    run(['podman', 'tag', fallback, 'localhost/azrael54-dashboard:latest'], env=gpu_environment)
+    values = write_compose_env('cpu', web_image=web_ref, port=port)
+    environment = compose_environment(port, False)
+    environment.update(values)
+    environment['PODMAN_COMPOSE_PROVIDER'] = provider_executable()
+    os.environ.update(environment)
+    run(compose_prefix(False) + ['config'], env=environment)
+    for service in ('dashboard', 'frontend'):
+        run_compose_up(service, gpu=False, force=True, env=environment)
+        import setup_lab
+        setup_lab.wait_for_services_healthy('podman', [service], timeout=300)
+    import setup_lab
+    setup_lab.wait_for_services_healthy('podman', SERVICES, timeout=300)
+    surface = verify_http_surface(port)
+    dashboard = setup_lab.verify_dashboard(port)
+    inference = setup_lab.verify_slm('podman', require_gpu=False, gpu=False)
+    internal = setup_lab.verify_internal_services('podman')
+    return {'status': 'cpu_fallback', 'reason': f'{type(failure).__name__}: {str(failure)[:900]}',
+            'surface': surface, 'dashboard': dashboard, 'cpu_inference': inference,
+            'internal_services': internal}
+
+
+def persist_juice_manifest(backup_dir, migration):
+    checksums = []
+    for key in ('pre_stop_snapshot', 'final_snapshot'):
+        snapshot = migration.get(key)
+        if snapshot:
+            checksums.append({'file': snapshot['archive'], 'sha256': snapshot['archive_sha256']})
+    file_path = backup_dir / 'web-lab-latest/migration-manifest.json'
+    value = json.loads(file_path.read_text())
+    value['snapshot_archives'] = checksums
+    db = Path(value['active_data']['path']) / 'juiceshop.sqlite'
+    value['active_sqlite_sha256_after_migration'] = hashlib.sha256(db.read_bytes()).hexdigest()
+    value['active_log_hashes'] = {str(path.relative_to(value['active_logs']['path'])):
+        hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in Path(value['active_logs']['path']).rglob('*') if path.is_file()}
+    save_json(file_path, value)
+    for record in checksums:
+        marker = Path(record['file'] + '.sha256')
+        marker.write_text(f"{record['sha256']}  {Path(record['file']).name}\n")
+        marker.chmod(0o600)
+    return value
+
+
+def run_cuda_probe(image, device_names, env):
+    results = []
+    for device in device_names:
+        selector = 'nvidia.com/gpu=' + device['uuid']
+        command = ['podman', 'run', '--rm', '--pull=never', '--network=none', '--userns=keep-id',
+                   '--read-only', '--cap-drop=ALL', '--security-opt', 'no-new-privileges',
+                   '--tmpfs', '/tmp:rw,noexec,nosuid,size=256m',
+                   '--device', selector, '-e', 'CUDA_VISIBLE_DEVICES=' + device['uuid'],
+                   '-e', 'AZRAEL_GPU_UUID=' + device['uuid'],
+                   '-e', 'AZRAEL_GPU_EXPECTED_UUIDS=' + device['uuid'],
+                   '-e', 'LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu',
+                   '--entrypoint', '/app/.slm-venv/bin/python', image, '/app/gpu_probe.py']
+        result = run(command, env=env, check=False, timeout=180)
+        if result.returncode:
+            results.append({'uuid': device['uuid'], 'name': device['name'], 'status': 'failed',
+                            'error': result.stdout[-1800:]})
+            continue
+        try:
+            report = json.loads(result.stdout.strip().splitlines()[-1])
+            if report.get('status') != 'passed' or not report.get('devices'):
+                raise ValueError('Probe did not report successful CUDA operations')
+            results.append({'uuid': device['uuid'], 'name': device['name'], 'status': 'passed',
+                            'runtime': report})
+        except (ValueError, json.JSONDecodeError) as error:
+            results.append({'uuid': device['uuid'], 'name': device['name'], 'status': 'failed',
+                            'error': f'{type(error).__name__}: {result.stdout[-800:]}'})
+    passed = [item for item in results if item['status'] == 'passed']
+    if passed:
+        uuids = ','.join(item['uuid'] for item in passed)
+        command = ['podman', 'run', '--rm', '--pull=never', '--network=none', '--userns=keep-id',
+                   '--read-only', '--cap-drop=ALL', '--security-opt', 'no-new-privileges',
+                   '--tmpfs', '/tmp:rw,noexec,nosuid,size=256m',
+                   '--device', 'nvidia.com/gpu=all', '-e', 'CUDA_VISIBLE_DEVICES=' + uuids,
+                   '-e', 'AZRAEL_GPU_EXPECTED_UUIDS=' + uuids,
+                   '-e', 'LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu',
+                   '--entrypoint', '/app/.slm-venv/bin/python', image, '/app/gpu_probe.py']
+        multi = run(command, env=env, check=False, timeout=240)
+        if multi.returncode:
+            multi_report = {'status': 'failed', 'error': multi.stdout[-1800:]}
+        else:
+            try:
+                multi_report = json.loads(multi.stdout.strip().splitlines()[-1])
+                if multi_report.get('status') != 'passed':
+                    multi_report['status'] = 'failed'
+            except (ValueError, json.JSONDecodeError):
+                multi_report = {'status': 'failed', 'error': multi.stdout[-800:]}
+    else:
+        multi_report = {'status': 'skipped', 'reason': 'No individual GPU passed the CUDA operation probe'}
+    return results, multi_report
+
+
+def verify_http_surface(port):
+    import setup_lab
+    health, _, raw = setup_lab._http(f'http://127.0.0.1:{port}/healthz', timeout=5)
+    page_status, _, page = setup_lab._http(f'http://127.0.0.1:{port}/', timeout=10)
+    if health != 200 or page_status != 200 or b'id="opsCenter"' not in page or b'board-a-01-tactical-reaper-hero.png' not in page:
+        raise DeploymentError('Frontend or proxied health endpoint failed verification')
+    asset_status, _, asset = setup_lab._http(f'http://127.0.0.1:{port}/ops.js', timeout=10)
+    if asset_status != 200 or b'/api/ops/status' not in asset:
+        raise DeploymentError('Live operations client was not served by the frontend')
+    return {'healthz': json.loads(raw), 'frontend': 'passed', 'azrael_artwork': 'passed', 'operations_client': 'passed'}
+
+
+def build_dashboard_image(env, *, gpu=False):
+    """Build the application image directly so provider errors cannot masquerade as success."""
+    index = ('https://download.pytorch.org/whl/cu128' if gpu else
+             'https://download.pytorch.org/whl/cpu')
+    run(['podman', 'build', '--pull=never', '--tag', 'localhost/azrael54-dashboard:latest',
+         '--file', 'container/Dockerfile.app', '--build-arg', 'TORCH_INDEX_URL=' + index, '.'],
+        env=env, timeout=7200)
+    if not image_id('localhost/azrael54-dashboard:latest', env):
+        raise DeploymentError('Podman completed without producing the requested dashboard image')
+    check = (
+        "import hashlib,json,pathlib,stat; p=pathlib.Path('/app/ctf_assets'); "
+        "c=json.loads((p/'catalog.json').read_text()); a=json.loads((p/'organizer-answer-key.json').read_text()); "
+        "s=json.loads((p/'source/SOURCE.json').read_text()); l=(p/'source/LICENSE.md').read_bytes(); "
+        "assert len(c['challenges'])==20 and set(a['answers'])=={x['id'] for x in c['challenges']}; "
+        "assert c['source']==s and s['license']=='MIT'; "
+        "assert hashlib.sha256(l).hexdigest()==s['license_file_sha256']; "
+        "assert (p/'organizer-answer-key.json').stat().st_mode & 0o777 == 0o600; "
+        "print(json.dumps({'ctf_assets':'passed','challenge_count':len(c['challenges']),"
+        "'answer_ids_match':True,'license_hash':'passed','answer_key_mode':'0600'}))"
+    )
+    run(['podman', 'run', '--rm', '--pull=never', '--network=none', '--read-only',
+         '--tmpfs', '/tmp:rw,noexec,nosuid,nodev,size=16m', '--entrypoint', '/app/.slm-venv/bin/python',
+         'localhost/azrael54-dashboard:latest', '-c', check], env=env, timeout=60)
+    return image_id('localhost/azrael54-dashboard:latest', env)
+
+
+def bootstrap(gpu_mode='auto', port=8765, force_update=False):
+    if os.getuid() == 0:
+        raise DeploymentError('Run ./azraelctl as the ordinary rootless project user, not with sudo')
+    host = supported_host()
+    dependency = dependency_report()
+    install_missing_dependencies(dependency)
+    dependency = dependency_report()
+    if dependency['missing_required']:
+        raise DeploymentError('Required host dependencies are unavailable: ' + ', '.join(dependency['missing_required']))
+    import setup_lab
+    import storage_paths
+    recovery = recovery_backup_status()
+    note(f"Host detected: {host['distribution']} · {host['version']} · {host['architecture']}")
+    note('Verified recovery backup: ' + str(BACKUP_ROOT))
+    ensure_venv_dependencies()
+    previous_state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+    if not force_update and gpu_mode != 'off' and previous_state.get('profile') == 'gpu':
+        os.environ.update(read_compose_env())
+        running = current_containers(provider_env())
+        same_config = previous_state.get('compose_signature') == compose_signature()
+        all_running = set(running) >= set(SERVICES) and all(health_is_healthy(running[name]) for name in SERVICES)
+        restart_ready = all((running[name].get('HostConfig', {}).get('RestartPolicy') or {}).get('Name') == 'unless-stopped'
+                            for name in SERVICES if name in running)
+        if same_config and all_running and restart_ready:
+            note('Existing GPU deployment is healthy and unchanged; skipping image rebuild and container recreation')
+            verify_deployment()
+            return 0
+    storage = storage_paths.prepare_storage()
+    if storage['write_readback'] != 'passed':
+        raise DeploymentError('Persistent storage write/read verification failed')
+    setup_lab.prepare_secrets()
+    # Never replace the source Juice Shop image before it has a verified image snapshot.
+    existing = current_containers(provider_env())
+    old_manifest = recovery['manifest']
+    old_ref = old_manifest.get('snapshot_image_ref')
+    web_ref = old_ref if old_ref and image_id(old_ref, provider_env()) else 'docker.io/bkimminich/juice-shop:latest'
+    os.environ['AZRAEL_WEB_LAB_IMAGE'] = web_ref
+    os.environ['AZRAEL_STORAGE_ROOT'] = str(storage_paths.storage_root())
+    env = write_compose_env('cpu', web_image=web_ref, port=port)
+    env.update({'AZRAEL_WEB_LAB_IMAGE': web_ref,
+                'AZRAEL_STORAGE_ROOT': str(storage_paths.storage_root()),
+                'PODMAN_COMPOSE_PROVIDER': provider_executable()})
+    os.environ.update(env)
+    os.environ.pop('AZRAEL_GPU_COMPOSE_FILE', None)
+    rootless = setup_lab.record_rootless_preflight()
+    # First build and verify the CPU profile; currently running project containers are untouched here.
+    cpu_commands = setup_lab.plan(install=False, build=True, start=False,
+                                  runtime='podman', port=port, gpu=False)
+    setup_lab.execute(cpu_commands, 'podman', port=port, verify=False, gpu=False,
+                      rootless_preflight=rootless)
+    note('Building the CPU dashboard image with strict Podman exit and CTF asset integrity checks')
+    build_dashboard_image(compose_environment(port, False), gpu=False)
+
+    signature = compose_signature()
+    service_signatures = compose_service_signatures(gpu=False)
+    current = current_containers(env)
+    expected_refs = dict(setup_lab.LOCAL_IMAGES)
+    expected_refs['web-lab'] = web_ref
+    expected_ids = {name: image_id(reference, env) for name, reference in expected_refs.items()}
+    old_state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+    recreate = {service for service in SERVICES
+                if needs_recreation(service, current.get(service), expected_ids.get(service), signature,
+                                    old_state, gpu=False, service_signature=service_signatures[service])}
+    for service in recreate:
+        audit_recreation(service, current.get(service), env)
+    if 'web-lab' in recreate and current.get('web-lab'):
+        backup_dir = make_backup_directory()
+        note('Backing up and migrating the Juice Shop writable layer before its required recreation')
+        try:
+            migration = snapshot_and_migrate_web_lab(current['web-lab'], backup_dir, env)
+            migration = persist_juice_manifest(backup_dir, migration)
+            web_ref = 'localhost/azrael54-web-lab-preserved:latest'
+            env = write_compose_env('cpu', web_image=web_ref, port=port)
+            env.update({'AZRAEL_WEB_LAB_IMAGE': web_ref,
+                        'AZRAEL_STORAGE_ROOT': str(storage_paths.storage_root()),
+                        'PODMAN_COMPOSE_PROVIDER': provider_executable()})
+            os.environ.update(env)
+            # Revalidate the final Compose input with the verified snapshot image and persistent data bind mounts.
+            run(setup_lab.compose_prefix('podman', False) + ['config'], env=env)
+            expected_refs['web-lab'] = web_ref
+            expected_ids['web-lab'] = image_id(web_ref, env)
+            if not expected_ids['web-lab']:
+                raise DeploymentError('Verified Juice Shop snapshot image is not available to Compose')
+        except BaseException as error:
+            restored = restore_web_lab_after_failure(current['web-lab'], env)
+            note('Juice Shop pre-recreation recovery: ' + json.dumps(restored, sort_keys=True))
+            if restored['status'] == 'recovery_required':
+                raise DeploymentError(f'Juice Shop backup/migration completed but deployment preflight failed, '
+                                      f'and the original service needs recovery: {restored["error"]}') from error
+            raise
+    else:
+        backup_dir = None
+        migration = None
+
+    note('Starting or recreating only the AZRAEL services whose health, image, profile, or Compose configuration requires it')
+    for service in START_ORDER:
+        item = current.get(service)
+        if service in recreate:
+            force = bool(item)
+        elif item and item.get('State', {}).get('Status') == 'running':
+            continue
+        else:
+            force = False
+        try:
+            run_compose_up(service, gpu=False, force=force, env=env)
+            setup_lab.wait_for_services_healthy('podman', [service], timeout=300 if service == 'dashboard' else 180)
+        except BaseException as error:
+            if service == 'web-lab' and item and item.get('State', {}).get('Status') == 'running':
+                recovery_status = restore_web_lab_after_failure(item, env)
+                note('Juice Shop failure recovery: ' + json.dumps(recovery_status, sort_keys=True))
+                if recovery_status['status'] == 'recovery_required':
+                    raise DeploymentError(f'Juice Shop deployment failed and automatic recovery needs attention; '
+                                          f'verified snapshot preserved at {recovery_status["snapshot_image"]}: '
+                                          f'{recovery_status["error"]}') from error
+            raise
+    setup_lab.wait_for_services_healthy('podman', SERVICES, timeout=300)
+    surface = verify_http_surface(port)
+    dashboard = setup_lab.verify_dashboard(port)
+    internal = setup_lab.verify_internal_services('podman')
+    cpu_inference = setup_lab.verify_slm('podman', require_gpu=False, gpu=False)
+    persist_state({'profile': 'cpu', 'compose_signature': signature,
+                   'service_signatures': service_signatures,
+                   'service_images': expected_ids, 'backup_directory': str(backup_dir) if backup_dir else None,
+                   'juice_shop_migration': migration, 'rootless_preflight': rootless,
+                   'cpu_verification': {'surface': surface, 'dashboard': dashboard,
+                                        'internal_services': internal, 'slm_inference': cpu_inference}})
+    note('CPU deployment verified: frontend, authenticated API, all service healthchecks and CPU model inference passed')
+
+    gpu_host = setup_lab.gpu_status()
+    gpu_result = {'requested': gpu_mode, 'host': gpu_host, 'status': 'skipped', 'reason': None}
+    if gpu_mode != 'off':
+        try:
+            if not gpu_host.get('host_gpu_detected'):
+                raise DeploymentError('Host nvidia-smi did not detect a GPU')
+            if not gpu_host.get('nvidia_container_toolkit') or gpu_host.get('nvidia_cdi', {}).get('status') != 'passed':
+                raise DeploymentError('NVIDIA Container Toolkit/CDI is not available to rootless Podman')
+            host_devices = setup_lab.host_gpu_inventory()
+            setup_lab.gpu_disk_space_preflight('podman')
+            if not host_devices:
+                raise DeploymentError('NVIDIA host inventory is empty')
+            cdi_probes = []
+            for device in host_devices:
+                try:
+                    result = setup_lab.gpu_container_preflight('podman', device_selector=device['uuid'])
+                    cdi_probes.append({'uuid': device['uuid'], 'name': device['name'],
+                                       'status': 'passed', 'verification': result})
+                except Exception as error:
+                    cdi_probes.append({'uuid': device['uuid'], 'name': device['name'],
+                                       'status': 'failed',
+                                       'error': f'{type(error).__name__}: {str(error)[:1200]}'})
+            passed_devices = [device for device, probe in zip(host_devices, cdi_probes)
+                              if probe['status'] == 'passed']
+            gpu_result['per_gpu_rootless_cdi_preflight'] = cdi_probes
+            gpu_result['host_devices'] = passed_devices
+            if passed_devices:
+                gpu_result['status'] = 'host_and_cdi_ready'
+            else:
+                failures = '; '.join(f"{item['name']}: {item.get('error', 'probe failed')}"
+                                     for item in cdi_probes)
+                gpu_result.update(status='cpu_fallback', reason=failures or 'No GPU passed rootless CDI preflight')
+        except Exception as error:
+            gpu_result.update(status='cpu_fallback', reason=f'{type(error).__name__}: {str(error)[:1200]}')
+
+    if gpu_result['status'] == 'host_and_cdi_ready':
+        # Preserve the working CPU dashboard image for rollback before building a CUDA image.
+        cpu_id = image_id('localhost/azrael54-dashboard:latest', env)
+        if not cpu_id:
+            raise DeploymentError('CPU dashboard image disappeared before CUDA build')
+        run(['podman', 'tag', 'localhost/azrael54-dashboard:latest',
+             'localhost/azrael54-dashboard:cpu-fallback'], env=env)
+        host_devices = gpu_result['host_devices']
+        preferred = next((item for item in host_devices if 'rtx 3080' in item['name'].casefold()), host_devices[0])
+        generate_gpu_compose(host_devices, preferred)
+        gpu_env_values = write_compose_env('gpu', host_devices, preferred, web_ref, port)
+        gpu_env = compose_environment(port, True)
+        gpu_env.update(gpu_env_values)
+        gpu_env['AZRAEL_GPU_COMPOSE_FILE'] = str(GPU_COMPOSE_FILE)
+        os.environ.update(gpu_env)
+        run(compose_prefix(True) + ['config'], env=gpu_env)
+        build_dashboard_image(gpu_env, gpu=True)
+        cuda_image = 'localhost/azrael54-dashboard:latest'
+        per_gpu, multi_gpu = run_cuda_probe(cuda_image, host_devices, gpu_env)
+        passed = [host_devices[index] for index, result in enumerate(per_gpu) if result['status'] == 'passed']
+        gpu_result.update(per_gpu=per_gpu, multi_gpu=multi_gpu)
+        if not passed:
+            gpu_result.update(status='cpu_fallback', reason='No GPU completed real container CUDA matrix and optimizer-step probes')
+            run(['podman', 'tag', 'localhost/azrael54-dashboard:cpu-fallback',
+                 'localhost/azrael54-dashboard:latest'], env=gpu_env)
+        else:
+            try:
+                preferred_passed = next((item for item in passed if item['uuid'] == preferred['uuid']), passed[0])
+                generate_gpu_compose(passed, preferred_passed)
+                gpu_env_values = write_compose_env('gpu', passed, preferred_passed, web_ref, port)
+                gpu_env = compose_environment(port, True)
+                gpu_env.update(gpu_env_values)
+                gpu_env['AZRAEL_GPU_COMPOSE_FILE'] = str(GPU_COMPOSE_FILE)
+                os.environ.update(gpu_env)
+                run(compose_prefix(True) + ['config'], env=gpu_env)
+                # GPU profile changes only the dashboard runtime; recreate that worker and frontend DNS proxy.
+                for service in ('dashboard', 'frontend'):
+                    run_compose_up(service, gpu=True, force=True, env=gpu_env)
+                    setup_lab.wait_for_services_healthy('podman', [service], timeout=300)
+                setup_lab.wait_for_services_healthy('podman', SERVICES, timeout=300)
+                gpu_health = setup_lab.verify_gpu_container('podman')
+                gpu_inference = setup_lab.verify_slm('podman', require_gpu=True, gpu=True)
+                device_inference = verify_api_inference(port, preferred_passed['uuid'], require_cuda=True)
+                cpu_api_fallback = verify_api_inference(port, 'cpu', require_cuda=False)
+                ctf_practice = setup_lab.verify_ctf_model_practice(port)
+                if not str(ctf_practice.get('device', '')).startswith('cuda') or not ctf_practice.get('gpu_memory_allocated_bytes'):
+                    raise DeploymentError('CTF model practice did not prove CUDA inference allocation')
+                surface = verify_http_surface(port)
+                dashboard = setup_lab.verify_dashboard(port)
+                internal = setup_lab.verify_internal_services('podman')
+                if multi_gpu.get('status') != 'passed':
+                    gpu_result['multi_gpu']['deployment_note'] = 'GPU workers are assigned by stable UUID per workload; model sharding is not enabled.'
+                gpu_result.update(status='passed' if len(passed) == len(host_devices) and multi_gpu.get('status') == 'passed' else 'partial',
+                                  cuda_container=gpu_health, slm_inference=gpu_inference,
+                                  ctf_model_practice=ctf_practice,
+                                  authenticated_gpu_api_inference=device_inference,
+                                  authenticated_cpu_fallback=cpu_api_fallback)
+                service_signatures = compose_service_signatures(gpu=True)
+                gpu_images = dict(expected_ids)
+                gpu_images['dashboard'] = image_id('localhost/azrael54-dashboard:latest', gpu_env)
+                persist_state({'profile': 'gpu', 'compose_signature': compose_signature(),
+                               'service_signatures': service_signatures,
+                               'service_images': gpu_images, 'gpu': gpu_result,
+                               'backup_directory': str(backup_dir) if backup_dir else None,
+                               'juice_shop_migration': migration,
+                               'verification': {'surface': surface, 'dashboard': dashboard,
+                                                'internal_services': internal},
+                               'rootless_preflight': rootless})
+            except Exception as error:
+                note(f'GPU service verification failed; restoring the preserved CPU profile: {type(error).__name__}: {str(error)[:500]}')
+                rollback = restore_cpu_dashboard(port, web_ref, gpu_env, error)
+                gpu_result.update(status='cpu_fallback', reason=rollback['reason'], cpu_rollback='passed')
+                fallback_state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+                fallback_state.update({'profile': 'cpu', 'compose_signature': compose_signature(),
+                    'service_signatures': compose_service_signatures(gpu=False),
+                    'service_images': expected_ids, 'gpu': gpu_result,
+                    'backup_directory': str(backup_dir) if backup_dir else None,
+                    'juice_shop_migration': migration,
+                    'cpu_verification': {'surface': rollback['surface'], 'dashboard': rollback['dashboard'],
+                                         'internal_services': rollback['internal_services'],
+                                         'slm_inference': rollback['cpu_inference']}})
+                persist_state(fallback_state)
+    if gpu_result['status'] in {'cpu_fallback', 'skipped', 'host_and_cdi_ready'}:
+        # A CUDA build may be present as an image tag, but do not replace the running CPU service on failure.
+        state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+        state.update({'profile': 'cpu', 'compose_signature': signature,
+                      'service_signatures': compose_service_signatures(gpu=False),
+                      'service_images': expected_ids, 'gpu': gpu_result,
+                      'backup_directory': str(backup_dir) if backup_dir else None,
+                      'juice_shop_migration': migration})
+        persist_state(state)
+
+    if gpu_result['status'] in {'cpu_fallback', 'skipped', 'host_and_cdi_ready'}:
+        ctf_practice = verification_stage('offline CTF model practice on CPU',
+            lambda: setup_lab.verify_ctf_model_practice(port))
+        if ctf_practice.get('device') != 'cpu':
+            raise DeploymentError('CPU fallback CTF practice did not report CPU execution')
+        state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+        state.setdefault('cpu_verification', {})['ctf_model_practice'] = ctf_practice
+        persist_state(state)
+
+    services = current_containers(provider_env())
+    all_healthy = all(service in services and health_is_healthy(services[service]) for service in SERVICES)
+    if not all_healthy:
+        raise DeploymentError('Final AZRAEL service health verification failed; see podman ps and azraelctl logs')
+    restart_manager = boot_service_manager(json.loads(STATE.read_text()).get('profile', 'cpu'), port)
+    state = json.loads(STATE.read_text())
+    state['restart_manager'] = restart_manager
+    state['final_status'] = {
+        'passed': 'running_gpu', 'partial': 'running_gpu_partial',
+        'skipped': 'running_cpu', 'cpu_fallback': 'running_cpu_with_gpu_issue',
+        'host_and_cdi_ready': 'running_cpu_with_gpu_issue',
+    }.get(gpu_result['status'], 'running_with_unverified_gpu_status')
+    persist_state(state)
+    note(f'Dashboard: http://127.0.0.1:{port}')
+    note('Final profile: ' + state['profile'] + ' · all required containers healthy · services left running')
+    note(json.dumps({'gpu_status': gpu_result['status'], 'restart_manager': restart_manager}, sort_keys=True))
+    return 0 if gpu_result['status'] in {'passed', 'skipped'} else EXIT_DEPLOYMENT
+
+
+def operational_status():
+    env = provider_env()
+    import setup_lab
+    status = run(['podman', 'ps', '--all', '--filter', f'label=com.docker.compose.project={PROJECT}',
+                  '--format', '{{.Names}}\t{{.Status}}\t{{.Ports}}'], env=env, check=False, display=False)
+    if status.stdout.strip():
+        print(status.stdout.rstrip())
+    else:
+        print('No AZRAEL-54 containers found')
+    try:
+        health = setup_lab._http(f"http://127.0.0.1:{int(os.environ.get('AZRAEL_PORT', '8765'))}/healthz", timeout=5)
+        print('healthz:', health[0], health[2].decode(errors='replace'))
+    except (OSError, RuntimeError, ValueError) as error:
+        print('healthz: unavailable:', type(error).__name__, str(error)[:300])
+    print('host GPUs:', json.dumps(setup_lab.gpu_status(), sort_keys=True))
+    if STATE.is_file():
+        print('deployment:', json.dumps(json.loads(STATE.read_text()), sort_keys=True))
+
+
+def lifecycle_action(action):
+    if os.getuid() == 0:
+        raise DeploymentError('Run this command as the ordinary rootless project user')
+    manager = shutil.which('systemctl')
+    if manager and UNIT_FILE.is_file():
+        command = ['systemctl', '--user', action, 'azrael54.service']
+        run(command, timeout=300)
+        if action == 'start':
+            service_manager_start()
+    else:
+        if action == 'start':
+            service_manager_start()
+        else:
+            state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+            gpu = state.get('profile') == 'gpu'
+            env = compose_environment(gpu=gpu)
+            if gpu:
+                env['AZRAEL_GPU_COMPOSE_FILE'] = str(GPU_COMPOSE_FILE)
+            run(compose_prefix(gpu) + ['stop' if action == 'stop' else 'restart'], env=env)
+    if action != 'stop':
+        import setup_lab
+        setup_lab.wait_for_services_healthy('podman', SERVICES, timeout=300)
+    note(f'AZRAEL-54 lifecycle action completed: {action}')
+
+
+def verify_deployment():
+    import setup_lab
+    state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+    profile = state.get('profile', 'cpu')
+    gpu = profile == 'gpu'
+    services = current_containers(provider_env())
+    if set(services) < set(SERVICES):
+        raise DeploymentError('One or more required AZRAEL services are absent')
+    setup_lab.wait_for_services_healthy('podman', SERVICES, timeout=60)
+    surface = verify_http_surface(int(os.environ.get('AZRAEL_PORT', '8765')))
+    dashboard = setup_lab.verify_dashboard(int(os.environ.get('AZRAEL_PORT', '8765')))
+    internal = setup_lab.verify_internal_services('podman')
+    if gpu:
+        cuda = setup_lab.verify_gpu_container('podman')
+        inference = verify_api_inference(int(os.environ.get('AZRAEL_PORT', '8765')),
+                                         os.environ.get('AZRAEL_GPU_UUID') or json.loads(STATE.read_text())['gpu']['authenticated_gpu_api_inference']['selected_device'],
+                                         require_cuda=True)
+        training_probe = state.get('gpu', {}).get('multi_gpu')
+        if not training_probe or training_probe.get('status') != 'passed':
+            raise DeploymentError('Real multi-GPU optimizer-step verification is not recorded')
+    else:
+        cuda = {'status': 'unavailable_or_not_selected'}
+        inference = setup_lab.verify_slm('podman', require_gpu=False, gpu=False)
+        training_probe = None
+    sqlite_path = Path(os.environ.get('AZRAEL_STORAGE_ROOT', '/data/work/azrael54')) / 'juice-shop-data/juiceshop.sqlite'
+    sqlite_result = None
+    if sqlite_path.is_file():
+        with sqlite3.connect(f'file:{sqlite_path}?mode=ro', uri=True) as connection:
+            sqlite_result = connection.execute('PRAGMA quick_check').fetchone()[0]
+    elif state.get('juice_shop_migration'):
+        raise DeploymentError('Persisted Juice Shop SQLite database is missing')
+    result = {'profile': profile, 'surface': surface, 'dashboard': dashboard,
+              'internal_services': internal, 'cuda': cuda, 'inference': inference,
+              'training_step': {'multi_gpu':training_probe,'individual_devices':state.get('gpu',{}).get('per_gpu',[]) if gpu else []},
+              'juice_shop_sqlite_integrity': sqlite_result}
+    note(json.dumps(result, indent=2, sort_keys=True))
+    return result
+
+
+def main(argv=None):
+    forwarded=list(sys.argv[1:] if argv is None else argv)
+    if forwarded and forwarded[0]=='training':
+        return subprocess.call([str(ROOT/'aztrealcli'),*forwarded],cwd=ROOT)
+    parser = argparse.ArgumentParser(prog='azraelctl', description=__doc__)
+    sub = parser.add_subparsers(dest='command', required=True)
+    bootstrap_parser = sub.add_parser('bootstrap', help='Install, build, deploy and verify AZRAEL-54')
+    bootstrap_parser.add_argument('--gpu', choices=('auto', 'on', 'off'), default='auto',
+                                  help='auto tries rootless CUDA and falls back to CPU (default: auto)')
+    bootstrap_parser.add_argument('--port', type=int, default=8765, help='localhost dashboard port')
+    for name, help_text in (
+        ('start', 'Start existing AZRAEL services without rebuilding'),
+        ('stop', 'Gracefully stop AZRAEL services without deleting state'),
+        ('restart', 'Restart AZRAEL services and preserve persistent data'),
+        ('status', 'Show containers, health endpoint, GPU and deployment state'),
+        ('logs', 'Show recent AZRAEL service logs'),
+        ('doctor', 'Run read-only host, Podman and NVIDIA diagnostics'),
+        ('verify', 'Run live service, auth, inference, GPU and persistence verification'),
+        ('update', 'Safely rebuild local project components with backup safeguards')):
+        sub.add_parser(name, help=help_text, description=help_text)
+    sub.add_parser('_service-start', help=argparse.SUPPRESS)
+    sub.add_parser('_service-stop', help=argparse.SUPPRESS)
+    sub.add_parser('training', help='Manage training candidates through aztrealcli training')
+    args = parser.parse_args(argv)
+    if args.command == 'bootstrap' and not 1024 <= args.port <= 65535:
+        parser.error('--port must be from 1024 through 65535')
+    try:
+        if args.command == '_service-start':
+            os.environ.update(read_compose_env())
+            service_manager_start()
+            return 0
+        if args.command == '_service-stop':
+            os.environ.update(read_compose_env())
+            service_manager_stop()
+            return 0
+        with deployment_lock():
+            if args.command == 'bootstrap':
+                return bootstrap(args.gpu, args.port, force_update=False)
+            if args.command == 'doctor':
+                doctor()
+                return 0
+            if args.command == 'status':
+                operational_status()
+                return 0
+            if args.command == 'logs':
+                state = json.loads(STATE.read_text()) if STATE.is_file() else {}
+                env = compose_environment(gpu=state.get('profile') == 'gpu')
+                if state.get('profile') == 'gpu':
+                    env['AZRAEL_GPU_COMPOSE_FILE'] = str(GPU_COMPOSE_FILE)
+                run(compose_prefix(state.get('profile') == 'gpu') + ['logs', '--tail', '100'], env=env)
+                return 0
+            if args.command in {'start', 'stop', 'restart'}:
+                lifecycle_action(args.command)
+                return 0
+            if args.command == 'verify':
+                verify_deployment()
+                return 0
+            if args.command == 'update':
+                return bootstrap('auto', 8765, force_update=True)
+    except DeploymentError as error:
+        note(f'ERROR {error}')
+        return EXIT_DEPENDENCY if 'depend' in str(error).lower() or 'supported hosts' in str(error).lower() else EXIT_DEPLOYMENT
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+        note(f'ERROR {type(error).__name__}: {error}')
+        return EXIT_DEPLOYMENT
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+

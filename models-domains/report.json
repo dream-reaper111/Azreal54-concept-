@@ -1,0 +1,710 @@
+{
+  "models": {
+    "web_red": {
+      "metrics": {
+        "documented_flawed_example": {
+          "precision": 0.875,
+          "recall": 1.0,
+          "f1-score": 0.9333333333333333,
+          "support": 14.0
+        },
+        "documented_good_example": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        },
+        "accuracy": 0.875,
+        "macro avg": {
+          "precision": 0.4375,
+          "recall": 0.5,
+          "f1-score": 0.4666666666666667,
+          "support": 16.0
+        },
+        "weighted avg": {
+          "precision": 0.765625,
+          "recall": 0.875,
+          "f1-score": 0.8166666666666667,
+          "support": 16.0
+        }
+      },
+      "train_rows": 69,
+      "validation_rows": 11,
+      "test_rows": 16,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.47619047619047616
+        }
+      ],
+      "task": "Web red \u00b7 documented flawed-code candidates",
+      "dataset": "MITRE CWE 4.20 demonstrative web-language code examples",
+      "source_url": "https://cwe.mitre.org/data/xml/cwec_latest.xml.zip",
+      "source_sha256": "3976f599e5e5200219a3108bb896d06e2a88fbb293369e1883cb423a5e9d7d50",
+      "limits": "CWE-group held-out code examples, web-language filter only; not repository data-flow or verified vulnerability analysis"
+    },
+    "web_blue": {
+      "metrics": {
+        "documented_flawed_example": {
+          "precision": 0.875,
+          "recall": 1.0,
+          "f1-score": 0.9333333333333333,
+          "support": 14.0
+        },
+        "documented_good_example": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        },
+        "accuracy": 0.875,
+        "macro avg": {
+          "precision": 0.4375,
+          "recall": 0.5,
+          "f1-score": 0.4666666666666667,
+          "support": 16.0
+        },
+        "weighted avg": {
+          "precision": 0.765625,
+          "recall": 0.875,
+          "f1-score": 0.8166666666666667,
+          "support": 16.0
+        }
+      },
+      "train_rows": 69,
+      "validation_rows": 11,
+      "test_rows": 16,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.47619047619047616
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.47619047619047616
+        }
+      ],
+      "task": "Web blue \u00b7 independent good/flawed-code review",
+      "dataset": "MITRE CWE 4.20 demonstrative web-language code examples",
+      "source_url": "https://cwe.mitre.org/data/xml/cwec_latest.xml.zip",
+      "source_sha256": "3976f599e5e5200219a3108bb896d06e2a88fbb293369e1883cb423a5e9d7d50",
+      "limits": "CWE-group held-out code examples, web-language filter only; not repository data-flow or verified vulnerability analysis"
+    },
+    "network_red": {
+      "metrics": {
+        "back": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 15.0
+        },
+        "ipsweep": {
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1-score": 0.9333333333333333,
+          "support": 8.0
+        },
+        "neptune": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 809.0
+        },
+        "normal": {
+          "precision": 0.9972640218878249,
+          "recall": 1.0,
+          "f1-score": 0.9986301369863013,
+          "support": 729.0
+        },
+        "satan": {
+          "precision": 0.9,
+          "recall": 0.9,
+          "f1-score": 0.9,
+          "support": 10.0
+        },
+        "smurf": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 25.0
+        },
+        "warezclient": {
+          "precision": 1.0,
+          "recall": 0.8,
+          "f1-score": 0.8888888888888888,
+          "support": 5.0
+        },
+        "accuracy": 0.9981261711430356,
+        "macro avg": {
+          "precision": 0.9853234316982606,
+          "recall": 0.9392857142857143,
+          "f1-score": 0.9601217656012176,
+          "support": 1601.0
+        },
+        "weighted avg": {
+          "precision": 0.9981295889795281,
+          "recall": 0.9981261711430356,
+          "f1-score": 0.9980715059176294,
+          "support": 1601.0
+        }
+      },
+      "train_rows": 5120,
+      "validation_rows": 1280,
+      "test_rows": 1601,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.2801687297993563
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.28016373737645134
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.3062503927104253
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.4519720702074194
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.6632834822510238
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.8755177022645144
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.9053337318699362
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.9227251891565658
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.8988077112624335
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.9301503568065339
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.9261990272567248
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.9526367494000054
+        },
+        {
+          "epoch": 13,
+          "validation_macro_f1": 0.9526367494000054
+        },
+        {
+          "epoch": 14,
+          "validation_macro_f1": 0.9450457257628165
+        },
+        {
+          "epoch": 15,
+          "validation_macro_f1": 0.985966663742578
+        },
+        {
+          "epoch": 16,
+          "validation_macro_f1": 0.9861985633090116
+        },
+        {
+          "epoch": 17,
+          "validation_macro_f1": 0.9543246040290365
+        },
+        {
+          "epoch": 18,
+          "validation_macro_f1": 0.9786083552537563
+        },
+        {
+          "epoch": 19,
+          "validation_macro_f1": 0.9783762525642786
+        },
+        {
+          "epoch": 20,
+          "validation_macro_f1": 0.9783762525642786
+        },
+        {
+          "epoch": 21,
+          "validation_macro_f1": 0.985966663742578
+        }
+      ],
+      "task": "Network red \u00b7 historical labeled attack-category triage",
+      "dataset": "KDD Cup 1999 10% subset; deterministic 20k reservoir followed by deduplication and minimum 30/class",
+      "source_url": "https://ndownloader.figshare.com/files/5976042",
+      "source_sha256": "8045aca0d84e70e622d1148d7df782496f6333bf6eb979a1b0837c42a9fd9561",
+      "limits": "Legacy 1999 connection-feature benchmark, random unique-vector holdout; not modern traffic validation or packet capture support"
+    },
+    "network_blue": {
+      "metrics": {
+        "attack": {
+          "precision": 0.9988518943742825,
+          "recall": 0.9977064220183486,
+          "f1-score": 0.9982788296041308,
+          "support": 872.0
+        },
+        "normal": {
+          "precision": 0.9972602739726028,
+          "recall": 0.9986282578875172,
+          "f1-score": 0.997943797121316,
+          "support": 729.0
+        },
+        "accuracy": 0.9981261711430356,
+        "macro avg": {
+          "precision": 0.9980560841734426,
+          "recall": 0.9981673399529329,
+          "f1-score": 0.9981113133627234,
+          "support": 1601.0
+        },
+        "weighted avg": {
+          "precision": 0.9981271652844482,
+          "recall": 0.9981261711430356,
+          "f1-score": 0.9981262757752914,
+          "support": 1601.0
+        }
+      },
+      "train_rows": 5120,
+      "validation_rows": 1280,
+      "test_rows": 1601,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.9694748910800275
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.9780516423299553
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.9850774750253259
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.9890105577141961
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.9913681855104449
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.9913681855104449
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.9968587723689765
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.9913681855104449
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.9968587723689765
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.9976438118461042
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.9976438118461042
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.9976438118461042
+        },
+        {
+          "epoch": 13,
+          "validation_macro_f1": 0.9968587723689765
+        },
+        {
+          "epoch": 14,
+          "validation_macro_f1": 0.9976438118461042
+        },
+        {
+          "epoch": 15,
+          "validation_macro_f1": 0.9968587723689765
+        }
+      ],
+      "task": "Network blue \u00b7 historical intrusion/normal classification",
+      "dataset": "KDD Cup 1999 10% subset; deterministic 20k reservoir followed by deduplication and minimum 30/class",
+      "source_url": "https://ndownloader.figshare.com/files/5976042",
+      "source_sha256": "8045aca0d84e70e622d1148d7df782496f6333bf6eb979a1b0837c42a9fd9561",
+      "limits": "Legacy 1999 connection-feature benchmark, random unique-vector holdout; not modern traffic validation or packet capture support"
+    },
+    "rf_red": {
+      "metrics": {
+        "1": {
+          "precision": 1.0,
+          "recall": 0.9903846153846154,
+          "f1-score": 0.9951690821256038,
+          "support": 104.0
+        },
+        "2": {
+          "precision": 0.9743589743589743,
+          "recall": 0.95,
+          "f1-score": 0.9620253164556962,
+          "support": 120.0
+        },
+        "3": {
+          "precision": 0.9333333333333333,
+          "recall": 0.9655172413793104,
+          "f1-score": 0.9491525423728814,
+          "support": 87.0
+        },
+        "4": {
+          "precision": 0.9888888888888889,
+          "recall": 1.0,
+          "f1-score": 0.994413407821229,
+          "support": 89.0
+        },
+        "accuracy": 0.975,
+        "macro avg": {
+          "precision": 0.9741452991452992,
+          "recall": 0.9764754641909814,
+          "f1-score": 0.9751900871938526,
+          "support": 400.0
+        },
+        "weighted avg": {
+          "precision": 0.9753354700854701,
+          "recall": 0.975,
+          "f1-score": 0.975049217495691,
+          "support": 400.0
+        }
+      },
+      "train_rows": 1280,
+      "validation_rows": 320,
+      "test_rows": 400,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.5416776054933523
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.8182839564978446
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.8818607555514616
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.9076285561418438
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.9290518613535077
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.9483806951222646
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.9548405117496043
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.9548405117496043
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.9614288743458966
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.9677453665229708
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.9677453665229708
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.9677453665229708
+        },
+        {
+          "epoch": 13,
+          "validation_macro_f1": 0.9710135243336822
+        },
+        {
+          "epoch": 14,
+          "validation_macro_f1": 0.9710135243336822
+        },
+        {
+          "epoch": 15,
+          "validation_macro_f1": 0.9710135243336822
+        },
+        {
+          "epoch": 16,
+          "validation_macro_f1": 0.9710135243336822
+        },
+        {
+          "epoch": 17,
+          "validation_macro_f1": 0.9710135243336822
+        },
+        {
+          "epoch": 18,
+          "validation_macro_f1": 0.9742428504453821
+        },
+        {
+          "epoch": 19,
+          "validation_macro_f1": 0.9742428504453821
+        },
+        {
+          "epoch": 20,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 21,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 22,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 23,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 24,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 25,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 26,
+          "validation_macro_f1": 0.9774820639091852
+        }
+      ],
+      "task": "RF red \u00b7 infer source-dataset room from seven RSSI values",
+      "dataset": "UCI Wireless Indoor Localization, Bhatt (2017), CC BY 4.0, DOI 10.24432/C51880",
+      "source_url": "https://archive.ics.uci.edu/static/public/422/wireless+indoor+localization.zip",
+      "source_sha256": "afb3e4f3674409642e6606e14faf4cb66edc3a8c74034839f1cee4e017c59a4e",
+      "limits": "Four room labels in one collected environment. Not a modulation classifier, RF attack detector, transmission system, or general location model."
+    },
+    "rf_blue": {
+      "metrics": {
+        "1": {
+          "precision": 1.0,
+          "recall": 0.9903846153846154,
+          "f1-score": 0.9951690821256038,
+          "support": 104.0
+        },
+        "2": {
+          "precision": 0.9739130434782609,
+          "recall": 0.9333333333333333,
+          "f1-score": 0.9531914893617022,
+          "support": 120.0
+        },
+        "3": {
+          "precision": 0.9130434782608695,
+          "recall": 0.9655172413793104,
+          "f1-score": 0.9385474860335196,
+          "support": 87.0
+        },
+        "4": {
+          "precision": 0.9888888888888889,
+          "recall": 1.0,
+          "f1-score": 0.994413407821229,
+          "support": 89.0
+        },
+        "accuracy": 0.97,
+        "macro avg": {
+          "precision": 0.9689613526570049,
+          "recall": 0.9723087975243148,
+          "f1-score": 0.9703303663355136,
+          "support": 400.0
+        },
+        "weighted avg": {
+          "precision": 0.9707886473429952,
+          "recall": 0.97,
+          "f1-score": 0.9700924696136818,
+          "support": 400.0
+        }
+      },
+      "train_rows": 1280,
+      "validation_rows": 320,
+      "test_rows": 400,
+      "history": [
+        {
+          "epoch": 1,
+          "validation_macro_f1": 0.8166173570019725
+        },
+        {
+          "epoch": 2,
+          "validation_macro_f1": 0.8259038052119546
+        },
+        {
+          "epoch": 3,
+          "validation_macro_f1": 0.8697100937683431
+        },
+        {
+          "epoch": 4,
+          "validation_macro_f1": 0.8999501190943251
+        },
+        {
+          "epoch": 5,
+          "validation_macro_f1": 0.9292221367183293
+        },
+        {
+          "epoch": 6,
+          "validation_macro_f1": 0.9452452305730144
+        },
+        {
+          "epoch": 7,
+          "validation_macro_f1": 0.9515470965679842
+        },
+        {
+          "epoch": 8,
+          "validation_macro_f1": 0.9548477188797079
+        },
+        {
+          "epoch": 9,
+          "validation_macro_f1": 0.9581412304773728
+        },
+        {
+          "epoch": 10,
+          "validation_macro_f1": 0.9612995034820158
+        },
+        {
+          "epoch": 11,
+          "validation_macro_f1": 0.9677453665229708
+        },
+        {
+          "epoch": 12,
+          "validation_macro_f1": 0.9710135243336822
+        },
+        {
+          "epoch": 13,
+          "validation_macro_f1": 0.9710135243336822
+        },
+        {
+          "epoch": 14,
+          "validation_macro_f1": 0.9710135243336822
+        },
+        {
+          "epoch": 15,
+          "validation_macro_f1": 0.9710135243336822
+        },
+        {
+          "epoch": 16,
+          "validation_macro_f1": 0.9742428504453821
+        },
+        {
+          "epoch": 17,
+          "validation_macro_f1": 0.9742428504453821
+        },
+        {
+          "epoch": 18,
+          "validation_macro_f1": 0.9742428504453821
+        },
+        {
+          "epoch": 19,
+          "validation_macro_f1": 0.9742428504453821
+        },
+        {
+          "epoch": 20,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 21,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 22,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 23,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 24,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 25,
+          "validation_macro_f1": 0.9774820639091852
+        },
+        {
+          "epoch": 26,
+          "validation_macro_f1": 0.9774820639091852
+        }
+      ],
+      "task": "RF blue \u00b7 independent room estimate and optional claim consistency",
+      "dataset": "UCI Wireless Indoor Localization, Bhatt (2017), CC BY 4.0, DOI 10.24432/C51880",
+      "source_url": "https://archive.ics.uci.edu/static/public/422/wireless+indoor+localization.zip",
+      "source_sha256": "afb3e4f3674409642e6606e14faf4cb66edc3a8c74034839f1cee4e017c59a4e",
+      "limits": "Four room labels in one collected environment. Not a modulation classifier, RF attack detector, transmission system, or general location model."
+    }
+  },
+  "network_coverage": {
+    "source_rows_examined": 494021,
+    "reservoir_rows": 20000,
+    "excluded_conflicting_feature_rows": 0,
+    "excluded_rare_labels": {
+      "portsweep": 26,
+      "teardrop": 27,
+      "guess_passwd": 3,
+      "nmap": 10,
+      "pod": 15,
+      "rootkit": 1,
+      "imap": 1,
+      "buffer_overflow": 1,
+      "warezmaster": 1
+    },
+    "sha256": "8045aca0d84e70e622d1148d7df782496f6333bf6eb979a1b0837c42a9fd9561"
+  },
+  "limits": "Independent classifiers with red/blue responsibilities; no attack generation or execution. Historical/small datasets do not establish current operational performance. CPU and peak memory not measured."
+}

@@ -1,0 +1,13 @@
+{
+  "roles": 57,
+  "role_document_assignments": 684,
+  "distinct_source_document_identities": 316,
+  "red_roles": 26,
+  "blue_roles": 31,
+  "empty_roles": [],
+  "elapsed_seconds": 3.34,
+  "training_occurred": false,
+  "training_eligible": false,
+  "snapshot": "920c7b50272d4912b4a7438f97e18d11",
+  "limitation": "Reference assignments can repeat across role corpora; source relevance and permissions require review."
+}
